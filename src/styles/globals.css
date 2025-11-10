@@ -1,0 +1,185 @@
+@import "tailwindcss";
+
+@theme {
+  /* Glass surface colors */
+  --color-glass-dark: rgb(10 10 15 / 0.85);
+  --color-glass-darker: rgb(5 5 10 / 0.9);
+  --color-glass-light: rgb(25 25 35 / 0.7);
+
+  /* Border colors */
+  --color-border-subtle: rgb(255 255 255 / 0.1);
+  --color-border-focus: rgb(59 130 246 / 0.5);
+
+  /* Text colors */
+  --color-text-primary: rgb(255 255 255 / 0.95);
+  --color-text-secondary: rgb(255 255 255 / 0.7);
+  --color-text-tertiary: rgb(255 255 255 / 0.5);
+
+  /* Accent colors */
+  --color-accent-blue: #3b82f6;
+  --color-accent-purple: #8b5cf6;
+
+  /* Box shadows */
+  --shadow-glass-sm: 0 2px 8px rgb(0 0 0 / 0.2);
+  --shadow-glass-md: 0 4px 16px rgb(0 0 0 / 0.3);
+  --shadow-glass-lg: 0 8px 32px rgb(0 0 0 / 0.4);
+
+  /* Backdrop blur values */
+  --blur-glass-sm: 10px;
+  --blur-glass-md: 20px;
+  --blur-glass-lg: 40px;
+
+  /* Font family */
+  --font-family-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+}
+
+@layer base {
+  * {
+    border-color: rgb(255 255 255 / 0.1);
+  }
+
+  body {
+    background-color: transparent;
+    color: rgb(255 255 255 / 0.95);
+    font-family: var(--font-family-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: rgb(5 5 10 / 0.9);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: rgb(25 25 35 / 0.7);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(255 255 255 / 0.1);
+  }
+}
+
+@layer components {
+  /* Glassmorphism utilities */
+  .glass-window {
+    background-color: rgb(10 10 15 / 0.85);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    box-shadow: 0 8px 32px rgb(0 0 0 / 0.4);
+    border-radius: 0.5rem;
+  }
+
+  .glass-card {
+    background-color: rgb(25 25 35 / 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    box-shadow: 0 4px 16px rgb(0 0 0 / 0.3);
+    border-radius: 0.375rem;
+  }
+
+  .glass-button {
+    background-color: rgb(25 25 35 / 0.7);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 0.375rem;
+    transition: all 0.2s;
+  }
+
+  .glass-button:hover {
+    background-color: rgb(5 5 10 / 0.9);
+  }
+
+  .glass-input {
+    background-color: rgb(5 5 10 / 0.9);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 0.375rem;
+    transition: border-color 0.2s;
+  }
+
+  .glass-input:focus {
+    border-color: rgb(59 130 246 / 0.5);
+    outline: none;
+  }
+
+  /* Message bubbles */
+  .message-user {
+    background-color: rgb(59 130 246 / 0.2);
+    border: 1px solid rgb(59 130 246 / 0.4);
+    border-radius: 0.5rem;
+    margin-left: auto;
+    max-width: 80%;
+  }
+
+  .message-assistant {
+    background-color: rgb(25 25 35 / 0.7);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 0.5rem;
+    margin-right: auto;
+    max-width: 80%;
+  }
+
+  /* Animations */
+  @keyframes slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-in {
+    animation: slide-in 0.2s ease-out;
+  }
+
+  @keyframes pulse-subtle {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+@layer utilities {
+  /* Text utilities */
+  .text-primary {
+    color: rgb(255 255 255 / 0.95);
+  }
+
+  .text-secondary {
+    color: rgb(255 255 255 / 0.7);
+  }
+
+  .text-tertiary {
+    color: rgb(255 255 255 / 0.5);
+  }
+
+  /* Gradient utilities */
+  .bg-accent-gradient {
+    background-image: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  }
+
+  /* Drag utilities for Tauri */
+  .-webkit-app-region-drag {
+    -webkit-app-region: drag;
+  }
+
+  .-webkit-app-region-no-drag {
+    -webkit-app-region: no-drag;
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Seeva AI Assistant",
+  "version": "0.1.0",
+  "identifier": "ai.seeva.assistant",
+  "build": {
+    "beforeDevCommand": "bun run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "bun run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "macOSPrivateApi": true,
+    "windows": [
+      {
+        "title": "Seeva AI Assistant",
+        "label": "main",
+        "width": 480,
+        "height": 700,
+        "minWidth": 400,
+        "minHeight": 500,
+        "maxWidth": 800,
+        "maxHeight": 1200,
+        "center": true,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "visible": true,
+        "skipTaskbar": false,
+        "theme": "Dark"
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "macOS": {
+      "minimumSystemVersion": "10.13"
+    }
+  },
+  "plugins": {
+    "store": {
+      "path": "settings.json"
+    },
+    "sql": {
+      "preload": ["sqlite:seeva.db"]
+    },
+    "globalShortcut": {
+      "shortcuts": []
+    }
+  }
+}

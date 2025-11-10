@@ -1,0 +1,110 @@
+import { Message } from '../../lib/types';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
+interface MessageBubbleProps {
+  message: Message;
+}
+
+export function MessageBubble({ message }: MessageBubbleProps) {
+  const isUser = message.role === 'user';
+  const isAssistant = message.role === 'assistant';
+
+  const formatTime = (timestamp: number) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  };
+
+  return (
+    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4 animate-slide-in`}>
+      <div className={`${isUser ? 'message-user' : 'message-assistant'} px-4 py-3`}>
+        {/* Message content with markdown */}
+        <div className={`prose prose-invert ${isUser ? 'prose-sm' : ''} max-w-none`}>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              code({ node, inline, className, children, ...props }: any) {
+                const match = /language-(\w+)/.exec(className || '');
+                return !inline && match ? (
+                  <SyntaxHighlighter
+                    style={vscDarkPlus}
+                    language={match[1]}
+                    PreTag="div"
+                    className="rounded-md my-2"
+                    {...props}
+                  >
+                    {String(children).replace(/\n$/, '')}
+                  </SyntaxHighlighter>
+                ) : (
+                  <code className="bg-glass-darker px-1.5 py-0.5 rounded text-accent-blue" {...props}>
+                    {children}
+                  </code>
+                );
+              },
+              a: ({ children, href }) => (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-accent-blue hover:underline"
+                >
+                  {children}
+                </a>
+              ),
+              ul: ({ children }) => (
+                <ul className="list-disc list-inside space-y-1 my-2">{children}</ul>
+              ),
+              ol: ({ children }) => (
+                <ol className="list-decimal list-inside space-y-1 my-2">{children}</ol>
+              ),
+              p: ({ children }) => (
+                <p className="my-2 leading-relaxed">{children}</p>
+              ),
+              h1: ({ children }) => (
+                <h1 className="text-xl font-bold mt-4 mb-2">{children}</h1>
+              ),
+              h2: ({ children }) => (
+                <h2 className="text-lg font-bold mt-3 mb-2">{children}</h2>
+              ),
+              h3: ({ children }) => (
+                <h3 className="text-base font-bold mt-2 mb-1">{children}</h3>
+              ),
+            }}
+          >
+            {message.content}
+          </ReactMarkdown>
+        </div>
+
+        {/* Images if present */}
+        {message.images && message.images.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {message.images.map((img, idx) => (
+              <img
+                key={idx}
+                src={`data:image/png;base64,${img}`}
+                alt={`Screenshot ${idx + 1}`}
+                className="max-w-xs rounded border border-border-subtle"
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Metadata footer */}
+        <div className="flex items-center justify-between mt-2 pt-2 border-t border-border-subtle/50">
+          <span className="text-xs text-tertiary">{formatTime(message.createdAt)}</span>
+          {isAssistant && message.metadata?.model && (
+            <span className="text-xs text-tertiary">
+              {message.metadata.model.split('-')[0]} {/* Show just "claude" or "gpt" */}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

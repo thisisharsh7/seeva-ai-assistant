@@ -1,0 +1,290 @@
+import { create } from 'zustand';
+import { Message, Thread } from '../lib/types';
+import { threadAPI, chatAPI } from '../lib/tauri-api';
+
+interface ChatState {
+  // Threads
+  threads: Thread[];
+  currentThreadId: string | null;
+  isLoadingThreads: boolean;
+
+  // Messages
+  messages: Message[];
+  isStreaming: boolean;
+  streamingContent: string;
+  isLoadingMessages: boolean;
+
+  // Actions
+  loadThreads: () => Promise<void>;
+  setCurrentThread: (threadId: string) => Promise<void>;
+  createThread: (name: string) => Promise<void>;
+  deleteThread: (threadId: string) => Promise<void>;
+  renameThread: (threadId: string, name: string) => Promise<void>;
+
+  loadMessages: (threadId: string) => Promise<void>;
+  sendMessage: (content: string, images: string[] | null) => Promise<void>;
+  deleteMessage: (messageId: string) => Promise<void>;
+
+  setStreaming: (isStreaming: boolean) => void;
+  appendStreamingContent: (content: string) => void;
+  clearStreamingContent: () => void;
+
+  // Getters
+  getCurrentThread: () => Thread | undefined;
+  getThreadMessages: (threadId: string) => Message[];
+}
+
+export const useChatStore = create<ChatState>((set, get) => ({
+  // Initial state
+  threads: [],
+  currentThreadId: null,
+  isLoadingThreads: false,
+  messages: [],
+  isStreaming: false,
+  streamingContent: '',
+  isLoadingMessages: false,
+
+  // Thread actions
+  loadThreads: async () => {
+    set({ isLoadingThreads: true });
+    try {
+      let threads = await threadAPI.list();
+      let currentId = await threadAPI.getCurrentId();
+
+      // If no threads exist, create a default one
+      if (threads.length === 0) {
+        const newThread = await threadAPI.create('New Conversation');
+        threads = [newThread];
+        currentId = newThread.id;
+      }
+
+      set({
+        threads,
+        currentThreadId: currentId || threads[0]?.id || null,
+        isLoadingThreads: false
+      });
+
+      // Load messages for current thread
+      if (currentId || threads[0]?.id) {
+        await get().loadMessages(currentId || threads[0].id);
+      }
+    } catch (error) {
+      console.error('Failed to load threads:', error);
+      set({ isLoadingThreads: false });
+    }
+  },
+
+  setCurrentThread: async (threadId) => {
+    try {
+      await threadAPI.switch(threadId);
+      set({ currentThreadId: threadId });
+      await get().loadMessages(threadId);
+    } catch (error) {
+      console.error('Failed to switch thread:', error);
+    }
+  },
+
+  createThread: async (name) => {
+    try {
+      const newThread = await threadAPI.create(name);
+      set((state) => ({
+        threads: [newThread, ...state.threads],
+        currentThreadId: newThread.id,
+        messages: [], // Clear messages for new thread
+      }));
+    } catch (error) {
+      console.error('Failed to create thread:', error);
+    }
+  },
+
+  deleteThread: async (threadId) => {
+    try {
+      await threadAPI.delete(threadId);
+      set((state) => {
+        const newThreads = state.threads.filter(t => t.id !== threadId);
+        const newCurrentId = state.currentThreadId === threadId
+          ? (newThreads[0]?.id || null)
+          : state.currentThreadId;
+
+        return {
+          threads: newThreads,
+          currentThreadId: newCurrentId,
+          messages: state.currentThreadId === threadId ? [] : state.messages,
+        };
+      });
+
+      // Load messages for new current thread
+      const newCurrentId = get().currentThreadId;
+      if (newCurrentId) {
+        await get().loadMessages(newCurrentId);
+      }
+    } catch (error) {
+      console.error('Failed to delete thread:', error);
+    }
+  },
+
+  renameThread: async (threadId, name) => {
+    try {
+      await threadAPI.updateName(threadId, name);
+      set((state) => ({
+        threads: state.threads.map(t =>
+          t.id === threadId ? { ...t, name, updatedAt: Date.now() } : t
+        ),
+      }));
+    } catch (error) {
+      console.error('Failed to rename thread:', error);
+    }
+  },
+
+  // Message actions
+  loadMessages: async (threadId) => {
+    set({ isLoadingMessages: true });
+    try {
+      const messages = await chatAPI.getMessages(threadId);
+      set({ messages, isLoadingMessages: false });
+    } catch (error) {
+      console.error('Failed to load messages:', error);
+      set({ isLoadingMessages: false });
+    }
+  },
+
+  sendMessage: async (content, images) => {
+    const state = get();
+    const currentThreadId = state.currentThreadId;
+
+    if (!currentThreadId) {
+      const { useToastStore } = await import('../hooks/useToast');
+      useToastStore.getState().addToast({ type: 'error', message: 'No active conversation. Please create or select a thread.' });
+      return;
+    }
+
+    // Get settings and UI stores
+    const settingsStore = await import('./settingsStore').then(m => m.useSettingsStore.getState());
+    const uiStore = await import('./uiStore').then(m => m.useUIStore.getState());
+    const { useToastStore } = await import('../hooks/useToast');
+
+    const settings = settingsStore.settings;
+    const provider = settings.defaultProvider;
+    const providerSettings = (settings as any)[provider];
+
+    // Check if API key is configured
+    if (!providerSettings?.apiKey || providerSettings.apiKey.trim() === '') {
+      const providerNames: Record<string, string> = {
+        anthropic: 'Anthropic Claude',
+        openai: 'OpenAI',
+        gemini: 'Google Gemini',
+        ollama: 'Ollama'
+      };
+
+      useToastStore.getState().addToast({
+        type: 'error',
+        message: `API key not configured for ${providerNames[provider] || provider}. Please add your API key in settings.`,
+        duration: 7000
+      });
+
+      // Auto-open settings modal
+      uiStore.openSettings();
+      return;
+    }
+
+    try {
+      // Add user message immediately to UI
+      const userMessage: Message = {
+        id: `msg-${Date.now()}`,
+        threadId: currentThreadId,
+        role: 'user',
+        content,
+        images: images || undefined,
+        createdAt: Date.now(),
+      };
+
+      set((state) => ({
+        messages: [...state.messages, userMessage],
+        isStreaming: true,
+        streamingContent: '',
+      }));
+
+      // Send message and get streaming response
+      const assistantMessage = await chatAPI.sendMessage(
+        currentThreadId,
+        content,
+        images,
+        provider as any,
+        providerSettings.apiKey,
+        providerSettings.defaultModel
+      );
+
+      // Add assistant message
+      set((state) => ({
+        messages: [...state.messages, assistantMessage],
+        isStreaming: false,
+        streamingContent: '',
+      }));
+
+      // Reload threads to update counts and last message
+      await get().loadThreads();
+    } catch (error) {
+      console.error('Failed to send message:', error);
+
+      const { useToastStore } = await import('../hooks/useToast');
+
+      // Extract error message from various error formats
+      let errorMessage = 'Unknown error occurred';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        errorMessage = String((error as any).message);
+      }
+
+      useToastStore.getState().addToast({
+        type: 'error',
+        message: `Failed to send message: ${errorMessage}`
+      });
+
+      set({ isStreaming: false, streamingContent: '' });
+    }
+  },
+
+  deleteMessage: async (messageId) => {
+    try {
+      await chatAPI.deleteMessage(messageId);
+      set((state) => ({
+        messages: state.messages.filter(m => m.id !== messageId),
+      }));
+    } catch (error) {
+      console.error('Failed to delete message:', error);
+    }
+  },
+
+  // Streaming actions
+  setStreaming: (isStreaming) => {
+    set({ isStreaming });
+  },
+
+  appendStreamingContent: (content) => {
+    set((state) => ({
+      streamingContent: state.streamingContent + content,
+    }));
+  },
+
+  clearStreamingContent: () => {
+    set({ streamingContent: '' });
+  },
+
+  // Getters
+  getCurrentThread: () => {
+    const state = get();
+    return state.threads.find(t => t.id === state.currentThreadId);
+  },
+
+  getThreadMessages: (threadId) => {
+    return get().messages.filter(m => m.threadId === threadId);
+  },
+}));
+
+// Initialize store by loading threads
+if (typeof window !== 'undefined') {
+  useChatStore.getState().loadThreads();
+}
