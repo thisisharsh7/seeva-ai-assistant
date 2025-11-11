@@ -17,7 +17,7 @@
         "label": "main",
         "width": 480,
         "height": 700,
-        "minWidth": 400,
+        "minWidth": 360,
         "minHeight": 500,
         "maxWidth": 800,
         "maxHeight": 1200,
@@ -55,7 +55,9 @@
       "path": "settings.json"
     },
     "sql": {
-      "preload": ["sqlite:seeva.db"]
+      "preload": [
+        "sqlite:seeva.db"
+      ]
     },
     "globalShortcut": {
       "shortcuts": []
