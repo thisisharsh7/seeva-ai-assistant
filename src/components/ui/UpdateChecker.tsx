@@ -14,7 +14,7 @@ export function UpdateChecker({ className = '' }: UpdateCheckerProps) {
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [showUpToDate, setShowUpToDate] = useState(false);
 
-  const upToDateTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const upToDateTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const isManualCheckRef = useRef(false);
   const downloadedBytesRef = useRef(0);
   const contentLengthRef = useRef(0);
