@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Modal, Button, Select, Input } from '../ui';
+import { Modal, Button, Select, Input, UpdateChecker } from '../ui';
 import { ShortcutRecorder } from '../ui/ShortcutRecorder';
 import { useUIStore } from '../../stores/uiStore';
 import { useSettingsStore } from '../../stores/settingsStore';
@@ -209,9 +209,14 @@ export function SettingsModal() {
         </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-end gap-3 pt-3 border-t border-border-subtle">
-          <div className="flex-1 text-xs text-tertiary">
-            {hasChanges && 'You have unsaved changes'}
+        <div className="flex items-center justify-between gap-3 pt-3 border-t border-border-subtle">
+          <div className="flex-1">
+            <UpdateChecker />
+            {hasChanges && (
+              <p className="text-xs text-tertiary mt-2">
+                You have unsaved changes
+              </p>
+            )}
           </div>
           <Button
             variant="primary"
