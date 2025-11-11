@@ -48,10 +48,7 @@
       "icons/icon.ico"
     ],
     "macOS": {
-      "minimumSystemVersion": "10.13",
-      "hardenedRuntime": true,
-      "signingIdentity": "-",
-      "entitlements": "Entitlements.plist"
+      "minimumSystemVersion": "10.13"
     }
   },
   "plugins": {
