@@ -121,25 +121,19 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   deleteThread: async (threadId) => {
-    console.log('🏪 Store: deleteThread called for:', threadId);
     const { useToastStore } = await import('../hooks/useToast');
     try {
       // Get thread name before deleting
       const thread = get().threads.find(t => t.id === threadId);
       const threadName = thread?.name || 'Thread';
-      console.log('📝 Thread to delete:', threadName, '(ID:', threadId, ')');
 
-      console.log('📡 Calling backend API: threadAPI.delete');
       await threadAPI.delete(threadId);
-      console.log('✅ Backend API call successful');
 
       set((state) => {
         const newThreads = state.threads.filter(t => t.id !== threadId);
         const newCurrentId = state.currentThreadId === threadId
           ? (newThreads[0]?.id || null)
           : state.currentThreadId;
-
-        console.log('🔄 Updating state: newThreads count:', newThreads.length, 'newCurrentId:', newCurrentId);
 
         return {
           threads: newThreads,
@@ -151,28 +145,24 @@ export const useChatStore = create<ChatState>((set, get) => ({
       // Check if no threads remain after deletion
       const remainingThreads = get().threads;
       if (remainingThreads.length === 0) {
-        console.log('⚠️ No threads remaining, creating new default thread');
         // Create a new default thread using existing logic
         await get().loadThreads();
-        console.log('✅ Thread deletion completed successfully with new thread created');
         return; // Exit early since loadThreads handles everything
       }
 
       // Load messages for new current thread
       const newCurrentId = get().currentThreadId;
       if (newCurrentId) {
-        console.log('📨 Loading messages for new current thread:', newCurrentId);
         await get().loadMessages(newCurrentId);
       }
 
-      console.log('✅ Thread deletion completed successfully');
       useToastStore.getState().addToast({
         type: 'success',
         message: `Thread "${threadName}" deleted successfully`,
         duration: 3000
       });
     } catch (error) {
-      console.error('❌ Store: Failed to delete thread:', error);
+      console.error('Failed to delete thread:', error);
 
       let errorMessage = 'Unknown error occurred';
       if (error instanceof Error) {

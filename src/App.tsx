@@ -26,7 +26,6 @@ function App() {
     const registerShortcut = async () => {
       try {
         await shortcutAPI.register(settings.shortcut);
-        console.log('Global shortcut registered:', settings.shortcut);
       } catch (error) {
         console.error('Failed to register global shortcut:', error);
       }
