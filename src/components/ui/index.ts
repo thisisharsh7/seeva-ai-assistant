@@ -7,3 +7,4 @@ export { Toggle } from './Toggle';
 export { Slider } from './Slider';
 export { ToastContainer } from './Toast';
 export { ShortcutRecorder } from './ShortcutRecorder';
+export { UpdateChecker } from './UpdateChecker';

@@ -1,0 +1,256 @@
+name: "Build"
+
+on:
+  workflow_call:
+    inputs:
+      platform:
+        required: true
+        type: string
+      target:
+        required: true
+        type: string
+      build-args:
+        required: false
+        type: string
+        default: ""
+      release-id:
+        required: false
+        type: string
+      asset-prefix:
+        required: false
+        type: string
+        default: "seeva-ai-assistant"
+      asset-name-pattern:
+        required: false
+        type: string
+        default: ""
+      upload-artifacts:
+        required: false
+        type: boolean
+        default: false
+      sign-binaries:
+        required: false
+        type: boolean
+        default: false
+      repository:
+        required: false
+        type: string
+      ref:
+        required: false
+        type: string
+        default: ${{ github.ref }}
+      is-debug-build:
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    permissions:
+      contents: write
+    runs-on: ${{ inputs.platform }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+
+      - name: Get version from tauri.conf.json
+        id: get-version
+        shell: bash
+        run: |
+          VERSION=$(grep -o '"version": "[^"]*"' src-tauri/tauri.conf.json | cut -d'"' -f4)
+          echo "Application version from tauri.conf.json: $VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Determine build profile
+        id: build-profile
+        shell: bash
+        run: |
+          if [[ "${{ inputs.is-debug-build }}" == "true" ]]; then
+            echo "profile=debug" >> "$GITHUB_OUTPUT"
+            echo "Build profile: debug"
+          else
+            echo "profile=release" >> "$GITHUB_OUTPUT"
+            echo "Build profile: release"
+          fi
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          # Those targets are only used on macos runners so it's in an `if` to slightly speed up windows and linux builds.
+          targets: ${{ contains(inputs.platform, 'macos') && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+          key: ${{ inputs.platform }}-${{ inputs.target }}
+
+      - name: install dependencies (ubuntu 24.04)
+        if: contains(inputs.platform, 'ubuntu-24.04')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libappindicator3-dev librsvg2-dev patchelf libasound2-dev libx11-dev libxtst-dev libxrandr-dev \
+            libwebkit2gtk-4.1-0=2.44.0-2 \
+            libwebkit2gtk-4.1-dev=2.44.0-2 \
+            libjavascriptcoregtk-4.1-0=2.44.0-2 \
+            libjavascriptcoregtk-4.1-dev=2.44.0-2 \
+            gir1.2-javascriptcoregtk-4.1=2.44.0-2 \
+            gir1.2-webkit2-4.1=2.44.0-2
+
+      - name: install dependencies (ubuntu 22.04)
+        if: contains(inputs.platform, 'ubuntu-22.04')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libasound2-dev libx11-dev libxtst-dev libxrandr-dev
+
+      - name: install frontend dependencies
+        run: bun install
+
+      - name: rustup install target
+        if: ${{ inputs.target != '' && !contains(inputs.target, 'unknown-linux-gnu') && !contains(inputs.target, 'pc-windows-msvc') }}
+        run: rustup target add ${{ inputs.target }}
+
+      - name: import Apple Developer Certificate
+        if: contains(inputs.platform, 'macos') && inputs.sign-binaries
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          echo $APPLE_CERTIFICATE | base64 --decode > certificate.p12
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security set-keychain-settings -t 3600 -u build.keychain
+          security import certificate.p12 -k build.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+          security find-identity -v -p codesigning build.keychain
+
+      - name: verify certificate
+        if: contains(inputs.platform, 'macos') && inputs.sign-binaries
+        run: |
+          CERT_INFO=$(security find-identity -v -p codesigning build.keychain | grep "Developer ID Application")
+          CERT_ID=$(echo "$CERT_INFO" | awk -F'"' '{print $2}')
+          echo "CERT_ID=$CERT_ID" >> $GITHUB_ENV
+          echo "Certificate imported."
+
+      - name: Patch asset name pattern
+        id: patch-release-name
+        shell: bash
+        if: ${{ inputs.release-id != '' && inputs.asset-name-pattern != '' }}
+        run: |
+          platform="${{ inputs.platform }}"
+          replacement="$(echo ${platform} | sed -E 's/-latest//')"
+          patched_platform=$(echo '${{ inputs.asset-name-pattern }}' | sed -E "s/\[platform\]/${replacement}/")
+          if [[ -n "${{ inputs.asset-prefix }}" ]]; then
+            patched_platform="${{ inputs.asset-prefix }}_${patched_platform}"
+          fi
+          echo "platform=${patched_platform}" >> $GITHUB_OUTPUT
+
+      - name: Build with Tauri
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLE_ID: ${{ inputs.sign-binaries && secrets.APPLE_ID || '' }}
+          APPLE_ID_PASSWORD: ${{ inputs.sign-binaries && secrets.APPLE_ID_PASSWORD || '' }}
+          APPLE_PASSWORD: ${{ inputs.sign-binaries && secrets.APPLE_PASSWORD || '' }}
+          APPLE_TEAM_ID: ${{ inputs.sign-binaries && secrets.APPLE_TEAM_ID || '' }}
+          APPLE_CERTIFICATE: ${{ inputs.sign-binaries && secrets.APPLE_CERTIFICATE || '' }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ inputs.sign-binaries && secrets.APPLE_CERTIFICATE_PASSWORD || '' }}
+          APPLE_SIGNING_IDENTITY: ${{ inputs.sign-binaries && env.CERT_ID || '' }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ inputs.sign-binaries && secrets.TAURI_SIGNING_PRIVATE_KEY || '' }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ inputs.sign-binaries && secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD || '' }}
+        with:
+          tagName: ${{ inputs.release-id && format('v{0}', steps.get-version.outputs.version) || '' }}
+          releaseName: ${{ inputs.release-id && format('v{0}', steps.get-version.outputs.version) || '' }}
+          releaseId: ${{ inputs.release-id }}
+          assetNamePattern: ${{ steps.patch-release-name.outputs.platform }}
+          args: ${{ inputs.build-args }}
+
+      - name: Upload artifacts (macOS)
+        if: inputs.upload-artifacts && contains(inputs.platform, 'macos')
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.asset-prefix }}-${{ inputs.target }}
+          path: |
+            src-tauri/target/${{ inputs.target }}/${{ steps.build-profile.outputs.profile }}/bundle/dmg/*.dmg
+            src-tauri/target/${{ inputs.target }}/${{ steps.build-profile.outputs.profile }}/bundle/macos/*.app
+          retention-days: 30
+
+      - name: Install FUSE for AppImage processing
+        if: contains(inputs.platform, 'ubuntu')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fuse libfuse2
+
+      - name: Remove libwayland-client.so from AppImage
+        if: contains(inputs.platform, 'ubuntu')
+        run: |
+          # Find the AppImage file
+          APPIMAGE_PATH=$(find src-tauri/target/${{ steps.build-profile.outputs.profile }}/bundle/appimage -name "*.AppImage" | head -1)
+
+          if [ -n "$APPIMAGE_PATH" ]; then
+            echo "Processing AppImage: $APPIMAGE_PATH"
+
+            # Make AppImage executable
+            chmod +x "$APPIMAGE_PATH"
+
+            # Extract AppImage
+            cd "$(dirname "$APPIMAGE_PATH")"
+            APPIMAGE_NAME=$(basename "$APPIMAGE_PATH")
+
+            # Extract using the AppImage itself
+            "./$APPIMAGE_NAME" --appimage-extract
+
+            # Remove libwayland-client.so files
+            echo "Removing libwayland-client.so files..."
+            find squashfs-root -name "libwayland-client.so*" -type f -delete
+
+            # List what was removed for verification
+            echo "Files remaining in lib directories:"
+            find squashfs-root -name "lib*" -type d | head -5 | while read dir; do
+              echo "Contents of $dir:"
+              ls "$dir" | grep -E "(wayland|fuse)" || echo "  No wayland/fuse libraries found"
+            done
+
+            # Get appimagetool
+            wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+            chmod +x appimagetool-x86_64.AppImage
+
+            # Repackage AppImage with no-appstream to avoid warnings
+            ARCH=x86_64 ./appimagetool-x86_64.AppImage --no-appstream squashfs-root "$APPIMAGE_NAME"
+
+            # Clean up
+            rm -rf squashfs-root appimagetool-x86_64.AppImage
+
+            echo "libwayland-client.so removed from AppImage successfully"
+          else
+            echo "No AppImage found to process"
+          fi
+
+      - name: Upload artifacts (Linux)
+        if: inputs.upload-artifacts && contains(inputs.platform, 'ubuntu')
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.asset-prefix }}-${{ inputs.platform }}-${{ inputs.target }}
+          path: |
+            src-tauri/target/${{ steps.build-profile.outputs.profile }}/bundle/deb/*.deb
+            src-tauri/target/${{ steps.build-profile.outputs.profile }}/bundle/appimage/*.AppImage
+            src-tauri/target/${{ steps.build-profile.outputs.profile }}/bundle/rpm/*.rpm
+          retention-days: 30
+
+      - name: Upload artifacts (Windows)
+        if: inputs.upload-artifacts && contains(inputs.platform, 'windows')
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.asset-prefix }}-${{ inputs.target }}
+          path: |
+            src-tauri/target/${{ steps.build-profile.outputs.profile }}/bundle/msi/*.msi
+            src-tauri/target/${{ steps.build-profile.outputs.profile }}/bundle/nsis/*.exe
+          retention-days: 30

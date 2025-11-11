@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Seeva - AI assistant with screen capture for macOS">
+    <title>Seeva - AI Assistant for macOS</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <main class="main">
+        <div class="container">
+            <!-- Header -->
+            <header class="header">
+                <div class="brand">
+                    <img src="assets/seeva-logo.png" alt="Seeva Logo" class="logo" width="28" height="28" style="border-radius: 4px;">
+                    <span class="brand-name">Seeva</span>
+                </div>
+                <a href="https://github.com/yourusername/seeva-ai-assistant" target="_blank" class="github-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                    </svg>
+                </a>
+            </header>
+
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="hero-content-wrapper">
+                    <!-- Hero Logo -->
+                    <div class="hero-logo">
+                        <img src="assets/seeva-logo.png" alt="Seeva Logo" width="140" height="140" style="border-radius: 12px;">
+                    </div>
+                    <h1>AI assistant for your Mac</h1>
+                    <p class="lead">Press a hotkey to chat with AI from any app. Capture your screen for visual context.</p>
+
+                    <div class="hero-actions">
+                        <a href="#" class="btn-download">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Download for macOS
+                        </a>
+                        <a href="https://github.com/yourusername/seeva-ai-assistant" target="_blank" class="btn-github">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                            </svg>
+                            View on GitHub
+                        </a>
+                    </div>
+
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect width="14" height="8" x="5" y="2" rx="1.5"/>
+                                    <rect width="20" height="12" x="2" y="10" rx="2"/>
+                                    <path d="M6 18h.01"/>
+                                    <path d="M10 18h.01"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="stat-label">Hotkey</div>
+                                <div class="stat-value"><kbd class="kbd-mini">⌘⇧C</kbd> or custom</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                                    <circle cx="9" cy="9" r="2"/>
+                                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="stat-label">Screen capture</div>
+                                <div class="stat-value">One-click visual context</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                                    <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="stat-label">Storage</div>
+                                <div class="stat-value">Local SQLite</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-visual">
+                    <div class="demo-preview">
+                        <div class="window-chrome">
+                            <div class="dots">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                        <div class="demo-content">
+                            <div class="chat-msg">
+                                <div class="msg-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                        <line x1="12" x2="12" y1="19" y2="22"/>
+                                    </svg>
+                                </div>
+                                <p>I can see your code. You have a memory leak in the useEffect hook—you're missing a cleanup function.</p>
+                            </div>
+                            <div class="chat-input">
+                                <button class="watch-btn">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                                        <circle cx="9" cy="9" r="2"/>
+                                        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                                    </svg>
+                                    Watch Screen
+                                </button>
+                                <span class="input-hint">Ask anything...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features -->
+            <section class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect width="14" height="8" x="5" y="2" rx="1.5"/>
+                            <rect width="20" height="12" x="2" y="10" rx="2"/>
+                            <path d="M6 18h.01"/>
+                            <path d="M10 18h.01"/>
+                        </svg>
+                    </div>
+                    <h3>Customizable hotkey</h3>
+                    <p>Set any keyboard shortcut to toggle the overlay</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                            <circle cx="9" cy="9" r="2"/>
+                            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                        </svg>
+                    </div>
+                    <h3>Screen capture</h3>
+                    <p>Share visual context with AI vision models</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </div>
+                    <h3>Multiple AI providers</h3>
+                    <p>Claude, GPT, Gemini, or local Ollama models</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                            <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/>
+                        </svg>
+                    </div>
+                    <h3>Local storage</h3>
+                    <p>SQLite database on your machine, no cloud</p>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <p>Open source • Requires macOS 10.13+ and API key from your chosen provider</p>
+            </footer>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

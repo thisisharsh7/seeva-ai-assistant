@@ -31,18 +31,32 @@ I was switching to AI tools 50+ times per day while coding. The constant context
 
 ## Installation
 
-### Prerequisites
+### Download Pre-built App
 
-- **macOS**: 10.13 (High Sierra) or later
-- **Bun**: Latest version (or Node.js 18+)
-- **Rust**: Latest stable version
-- **API Keys**: At least one AI provider API key
+Download the latest version for your platform from the [Releases](https://github.com/thisisharsh7/seeva-ai-assistant/releases) page:
+
+- **macOS**: Download the `.dmg` file
+  - Apple Silicon (M1/M2/M3): `seeva-ai-assistant_aarch64.dmg`
+  - Intel: `seeva-ai-assistant_x64.dmg`
+- **Linux**:
+  - Debian/Ubuntu: `.deb` file
+  - Fedora/RHEL: `.rpm` file
+  - Universal: `.AppImage` file
+- **Windows**: Download the `.msi` or `.exe` installer
+
+### Auto-Updates
+
+Seeva AI Assistant includes automatic update checking. When a new version is available:
+1. Open Settings (click the gear icon)
+2. Click "Update available" in the footer
+3. The update will download and install automatically
+4. The app will relaunch with the new version
 
 ### Development Setup
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/seeva-ai-assistant.git
+   git clone https://github.com/thisisharsh7/seeva-ai-assistant.git
    cd seeva-ai-assistant
    ```
 
@@ -60,6 +74,21 @@ I was switching to AI tools 50+ times per day while coding. The constant context
    ```bash
    bun run tauri build
    ```
+
+### Building Releases
+
+To create a signed release (requires setup of signing keys):
+
+1. Generate signing keys:
+   ```bash
+   bun run tauri signer generate -w .tauri/seeva.key
+   ```
+
+2. Add the public key to `src-tauri/tauri.conf.json` under `plugins.updater.pubkey`
+
+3. Set up GitHub secrets for code signing (see `.github/workflows/release.yml`)
+
+4. Create a release by running the GitHub Actions workflow manually
 
 ## Quick Start
 
