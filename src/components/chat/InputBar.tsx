@@ -4,7 +4,7 @@ import { useUIStore } from '../../stores/uiStore';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { screenshotAPI } from '../../lib/tauri-api';
 import { Button } from '../ui';
-import { Camera, Send, Settings } from 'lucide-react';
+import { Camera, Send, Settings, Loader2 } from 'lucide-react';
 import { ScreenshotPreview } from './ScreenshotPreview';
 
 export function InputBar() {
@@ -190,29 +190,36 @@ export function InputBar() {
                        disabled:opacity-50 disabled:cursor-not-allowed"
           />
 
-          {/* Buttons */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleScreenshot}
-            disabled={isStreaming || isSending || isCapturingScreenshot || isCompressingScreenshot || !hasApiKey}
-            className="flex-shrink-0 p-2"
-            title="Capture screenshot"
-          >
-            <Camera size={22} />
-          </Button>
+          {/* Buttons - hide during loading, show spinner instead */}
+          {!isSending && !isStreaming ? (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleScreenshot}
+                disabled={isCapturingScreenshot || isCompressingScreenshot || !hasApiKey}
+                className="flex-shrink-0 p-2"
+                title="Capture screenshot"
+              >
+                <Camera size={22} />
+              </Button>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSend}
-            disabled={!input.trim() || isStreaming || isSending || isCapturingScreenshot || isCompressingScreenshot || !hasApiKey}
-            isLoading={isSending}
-            className="flex-shrink-0 p-2"
-            title={!hasApiKey ? 'Configure API key first' : 'Send message'}
-          >
-            <Send size={22} />
-          </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSend}
+                disabled={!input.trim() || isCapturingScreenshot || isCompressingScreenshot || !hasApiKey}
+                className="flex-shrink-0 p-2"
+                title={!hasApiKey ? 'Configure API key first' : 'Send message'}
+              >
+                <Send size={22} />
+              </Button>
+            </>
+          ) : (
+            <div className="flex-shrink-0 p-2" title="Sending...">
+              <Loader2 className="animate-spin text-gray-600 dark:text-gray-400" size={22} />
+            </div>
+          )}
         </div>
 
         {/* Shortcut hint */}

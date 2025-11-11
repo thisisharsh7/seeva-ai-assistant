@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { Message } from '../../lib/types';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { Copy, Check } from 'lucide-react';
 
 interface MessageBubbleProps {
   message: Message;
@@ -11,6 +13,7 @@ interface MessageBubbleProps {
 export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user';
   const isAssistant = message.role === 'assistant';
+  const [copied, setCopied] = useState(false);
 
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp);
@@ -21,9 +24,19 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     });
   };
 
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(message.content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch (error) {
+      console.error('Failed to copy message:', error);
+    }
+  };
+
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-3 animate-slide-in`}>
-      <div className={`flex flex-col ${isUser ? 'max-w-[55%]' : 'max-w-[75%]'}`}>
+      <div className={`flex flex-col ${isUser ? 'max-w-[55%]' : 'max-w-[75%]'} group`}>
         {/* Seeva branding label for assistant messages */}
         {isAssistant && (
           <div className="text-xs text-tertiary font-medium mb-1 ml-1">
@@ -115,6 +128,21 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             </>
           )}
         </div>
+
+        {/* Copy button for assistant messages */}
+        {isAssistant && (
+          <button
+            onClick={handleCopy}
+            className="flex items-center gap-1.5 mt-1 px-2 py-1 text-xs transition-all duration-200
+                       opacity-0 group-hover:opacity-100
+                       text-gray-600 dark:text-gray-400
+                       hover:text-blue-600 hover:dark:text-blue-400"
+            title={copied ? 'Copied!' : 'Copy message'}
+          >
+            {copied ? <Check size={14} /> : <Copy size={14} />}
+            <span>{copied ? 'Copied' : 'Copy'}</span>
+          </button>
+        )}
       </div>
     </div>
   );
