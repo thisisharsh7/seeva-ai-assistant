@@ -4,14 +4,25 @@ import { useUIStore } from '../../stores/uiStore';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { screenshotAPI } from '../../lib/tauri-api';
 import { Button } from '../ui';
-import { Camera, Send, X, Settings } from 'lucide-react';
+import { Camera, Send, Settings } from 'lucide-react';
 
 export function InputBar() {
   const [input, setInput] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { sendMessage, isStreaming } = useChatStore();
-  const { currentScreenshot, setScreenshot, clearScreenshot, isSending, setIsSending, openSettings } = useUIStore();
+  const {
+    currentScreenshot,
+    setScreenshot,
+    clearScreenshot,
+    isSending,
+    setIsSending,
+    openSettings,
+    isCapturingScreenshot,
+    isCompressingScreenshot,
+    setCapturingScreenshot,
+    setCompressingScreenshot
+  } = useUIStore();
   const { settings: appSettings } = useSettingsStore();
 
   // Check if API key is configured
@@ -20,14 +31,39 @@ export function InputBar() {
   const hasApiKey = providerSettings?.apiKey && providerSettings.apiKey.trim() !== '';
 
   const handleScreenshot = async () => {
+    console.log('🎬 [UI] Camera button clicked - starting screenshot capture');
+
     try {
-      setIsSending(true);
+      console.log('⏳ [UI] Setting capturing state to true...');
+      setCapturingScreenshot(true);
+
+      console.log('📡 [UI] Calling Tauri screenshot API...');
+      const startTime = performance.now();
       const screenshot = await screenshotAPI.capture();
+      const endTime = performance.now();
+      const duration = (endTime - startTime).toFixed(0);
+
+      console.log(`✅ [UI] Screenshot received from backend (took ${duration}ms)`);
+      console.log(`📊 [UI] Screenshot base64 length: ${screenshot.length} characters`);
+
+      console.log('🖼️  [UI] Setting screenshot in state...');
       setScreenshot(screenshot);
+
+      console.log('✅ [UI] Screenshot capture complete - resetting states');
+      setCapturingScreenshot(false);
+      // NOTE: Compression happens in backend (Rust), no need for fake UI state
+      // The backend already resizes, converts to JPEG, and encodes to base64
     } catch (error) {
-      console.error('Failed to capture screenshot:', error);
-    } finally {
-      setIsSending(false);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error(`❌ [UI] Screenshot capture failed: ${errorMessage}`);
+      console.error('[UI] Full error object:', error);
+
+      console.log('🔄 [UI] Resetting screenshot states due to error');
+      setCapturingScreenshot(false);
+      setCompressingScreenshot(false);
+
+      // TODO: Add toast notification to inform user about the error
+      // toast.error(`Screenshot failed: ${errorMessage}`);
     }
   };
 
@@ -55,7 +91,7 @@ export function InputBar() {
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
@@ -67,34 +103,25 @@ export function InputBar() {
     // Auto-resize textarea
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 200)}px`;
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 160)}px`;
     }
   };
 
-  return (
-    <div className="absolute bottom-0 left-0 right-0 p-4">
-      {/* Screenshot Preview */}
-      {currentScreenshot && (
-        <div className="mb-4">
-          <div className="relative inline-block">
-            <img
-              src={`data:image/png;base64,${currentScreenshot}`}
-              alt="Screenshot preview"
-              className="max-h-32 rounded-lg border border-border-subtle"
-            />
-            <button
-              onClick={clearScreenshot}
-              className="absolute -top-2 -right-2 p-1 rounded-full bg-glass-dark/90 hover:bg-glass-light transition-colors"
-            >
-              <X size={16} />
-            </button>
-          </div>
-        </div>
-      )}
+  const formatShortcutDisplay = (shortcut: string): string => {
+    return shortcut
+      .replace(/CommandOrControl/g, '⌘/Ctrl')
+      .replace(/Command/g, '⌘')
+      .replace(/Control/g, 'Ctrl')
+      .replace(/Shift/g, '⇧')
+      .replace(/Alt/g, '⌥')
+      .replace(/\+/g, '');
+  };
 
+  return (
+    <div className="absolute bottom-0 left-0 right-0">
       {/* API Key Warning */}
       {!hasApiKey && (
-        <div className="mb-4">
+        <div className="px-4 pb-2">
           <div className="flex items-center justify-between gap-2 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
             <span className="text-sm text-yellow-200 flex-1">
               API key not configured. Please add your API key to send messages.
@@ -103,7 +130,7 @@ export function InputBar() {
               variant="secondary"
               size="sm"
               onClick={openSettings}
-              className="flex items-center gap-2 flex-shrink-0"
+              className="flex-shrink-0"
             >
               <Settings size={16} />
               Settings
@@ -112,52 +139,56 @@ export function InputBar() {
         </div>
       )}
 
-      {/* Input Container - Floating */}
-      <div className="relative border border-border-subtle rounded-xl bg-glass-dark/80 backdrop-blur-md focus-within:border-accent-blue/50 transition-all overflow-hidden">
-        {/* Text Input */}
-        <textarea
-          ref={textareaRef}
-          value={input}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          placeholder="Ask me anything..."
-          disabled={isStreaming || isSending}
-          rows={1}
-          className="w-full bg-transparent px-4 py-2 pr-24
-                     text-text-primary placeholder-text-tertiary
-                     focus:outline-none
-                     resize-none transition-all overflow-y-auto
-                     disabled:opacity-50 disabled:cursor-not-allowed"
-        />
+      {/* Input Bar - Full Width */}
+      <div className="border-t border-border-subtle glass-card backdrop-blur-sm">
+        <div className="flex items-start gap-2 px-4 py-3">
+          {/* Text Input */}
+          <textarea
+            ref={textareaRef}
+            value={input}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask me anything..."
+            disabled={isStreaming || isSending}
+            rows={1}
+            className="flex-1 bg-transparent text-primary placeholder-text-tertiary
+                       focus:outline-none resize-none overflow-y-auto max-h-40
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+          />
 
-        {/* Buttons Container - Bottom Right */}
-        <div className="absolute bottom-2 right-3 flex items-center gap-2">
-          {/* Screenshot Button */}
+          {/* Buttons */}
           <Button
             variant="ghost"
             size="sm"
             onClick={handleScreenshot}
-            disabled={isStreaming || isSending}
-            className="flex-shrink-0"
+            disabled={isStreaming || isSending || isCapturingScreenshot || isCompressingScreenshot || !hasApiKey}
+            className="flex-shrink-0 p-2"
             title="Capture screenshot"
           >
-            <Camera size={20} />
+            <Camera size={22} />
           </Button>
 
-          {/* Send Button */}
           <Button
-            variant="primary"
+            variant="ghost"
             size="sm"
             onClick={handleSend}
-            disabled={!input.trim() || isStreaming || isSending || !hasApiKey}
+            disabled={!input.trim() || isStreaming || isSending || isCapturingScreenshot || isCompressingScreenshot || !hasApiKey}
             isLoading={isSending}
-            className="flex-shrink-0"
+            className="flex-shrink-0 p-2"
             title={!hasApiKey ? 'Configure API key first' : 'Send message'}
           >
-            <Send size={20} />
+            <Send size={22} />
           </Button>
         </div>
+
+        {/* Shortcut hint */}
+        {appSettings?.shortcut && (
+          <div className="pb-2 text-center text-xs text-tertiary">
+            Press {formatShortcutDisplay(appSettings.shortcut)} to toggle overlay
+          </div>
+        )}
       </div>
+
     </div>
   );
 }

@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use tauri::State;
 use crate::services::ai::anthropic::AnthropicProvider;
 use crate::services::ai::provider::AIProvider;
+use crate::services::SettingsManager;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -64,12 +65,11 @@ impl Default for AppSettings {
     }
 }
 
-pub type SettingsState = Arc<Mutex<AppSettings>>;
+pub type SettingsState = Arc<SettingsManager>;
 
 #[tauri::command]
 pub async fn get_settings(settings: State<'_, SettingsState>) -> Result<AppSettings, String> {
-    let settings = settings.lock().map_err(|e| e.to_string())?;
-    Ok(settings.clone())
+    settings.get().map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -77,9 +77,7 @@ pub async fn update_settings(
     new_settings: AppSettings,
     settings: State<'_, SettingsState>,
 ) -> Result<(), String> {
-    let mut settings = settings.lock().map_err(|e| e.to_string())?;
-    *settings = new_settings;
-    Ok(())
+    settings.update(new_settings).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -87,9 +85,11 @@ pub async fn set_default_provider(
     provider: String,
     settings: State<'_, SettingsState>,
 ) -> Result<(), String> {
-    let mut settings = settings.lock().map_err(|e| e.to_string())?;
-    settings.default_provider = provider;
-    Ok(())
+    settings
+        .update_field(|s| {
+            s.default_provider = provider;
+        })
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -98,17 +98,15 @@ pub async fn set_api_key(
     api_key: String,
     settings: State<'_, SettingsState>,
 ) -> Result<(), String> {
-    let mut settings = settings.lock().map_err(|e| e.to_string())?;
-
-    match provider.as_str() {
-        "anthropic" => settings.anthropic.api_key = api_key,
-        "openai" => settings.openai.api_key = api_key,
-        "gemini" => settings.gemini.api_key = api_key,
-        "ollama" => settings.ollama.api_key = api_key,
-        _ => return Err(format!("Unknown provider: {}", provider)),
-    }
-
-    Ok(())
+    settings
+        .update_field(|s| match provider.as_str() {
+            "anthropic" => s.anthropic.api_key = api_key.clone(),
+            "openai" => s.openai.api_key = api_key.clone(),
+            "gemini" => s.gemini.api_key = api_key.clone(),
+            "ollama" => s.ollama.api_key = api_key.clone(),
+            _ => {}
+        })
+        .map_err(|e| e.to_string())
 }
 
 #[derive(Debug, Serialize)]

@@ -1,25 +1,88 @@
 import { useState } from 'react';
 import { useChatStore } from '../../stores/chatStore';
 import { Button } from '../ui';
-import { Plus, MessageSquare, Trash2, Settings, ChevronLeft } from 'lucide-react';
+import { Plus, MessageSquare, Trash2, Settings, ChevronLeft, Trash } from 'lucide-react';
 import { useUIStore } from '../../stores/uiStore';
+import { ask, message } from '@tauri-apps/plugin-dialog';
 
 export function ThreadSidebar() {
-  const { threads, currentThreadId, setCurrentThread, createThread, deleteThread } = useChatStore();
+  const { threads, currentThreadId, setCurrentThread, createThread, deleteThread, clearAllThreads } = useChatStore();
   const { openSettings, isSidebarOpen, toggleSidebar } = useUIStore();
   const [isCreatingThread, setIsCreatingThread] = useState(false);
+  const [isDeletingThread, setIsDeletingThread] = useState<string | null>(null);
+  const [isClearingThreads, setIsClearingThreads] = useState(false);
 
-  const handleCreateThread = () => {
-    const name = prompt('Enter thread name:');
-    if (name?.trim()) {
-      createThread(name.trim());
+  const handleCreateThread = async () => {
+    // Generate a unique thread name
+    const threadNumber = threads.length + 1;
+    const threadName = `New Thread #${threadNumber}`;
+
+    // Show confirmation dialog
+    await message(`Creating thread: "${threadName}"`, {
+      title: 'New Thread',
+      kind: 'info',
+    });
+
+    setIsCreatingThread(true);
+    try {
+      await createThread(threadName);
+    } catch (error) {
+      // Error already shown via toast in store
+    } finally {
+      setIsCreatingThread(false);
     }
   };
 
-  const handleDeleteThread = (threadId: string, e: React.MouseEvent) => {
+  const handleDeleteThread = async (threadId: string, e: React.MouseEvent) => {
+    console.log('🗑️ Delete button clicked for thread:', threadId);
+
     e.stopPropagation();
-    if (confirm('Are you sure you want to delete this thread?')) {
-      deleteThread(threadId);
+    console.log('✓ Event propagation stopped');
+
+    const confirmed = await ask('Are you sure you want to delete this thread?', {
+      title: 'Delete Thread',
+      kind: 'warning',
+      okLabel: 'Delete',
+      cancelLabel: 'Cancel'
+    });
+    console.log('📊 Dialog result:', confirmed);
+
+    if (confirmed) {
+      console.log('✓ User confirmed deletion');
+      setIsDeletingThread(threadId);
+
+      try {
+        console.log('📡 Calling deleteThread API...');
+        await deleteThread(threadId);
+        console.log('✅ Thread deleted successfully');
+      } catch (error) {
+        console.error('❌ Failed to delete thread:', error);
+      } finally {
+        setIsDeletingThread(null);
+        console.log('🔄 Reset deleting state');
+      }
+    } else {
+      console.log('❌ User cancelled deletion');
+    }
+  };
+
+  const handleClearAllThreads = async () => {
+    const confirmed = await ask('Are you sure you want to clear ALL threads? This action cannot be undone.', {
+      title: 'Clear All Threads',
+      kind: 'warning',
+      okLabel: 'Clear All',
+      cancelLabel: 'Cancel'
+    });
+
+    if (confirmed) {
+      setIsClearingThreads(true);
+      try {
+        await clearAllThreads();
+      } catch (error) {
+        // Error already shown via toast in store
+      } finally {
+        setIsClearingThreads(false);
+      }
     }
   };
 
@@ -40,36 +103,35 @@ export function ThreadSidebar() {
     }
   };
 
-  return (
-    <div className={`relative glass-card flex flex-col h-full transition-all duration-300 ${
-      isSidebarOpen ? 'w-56' : 'w-0 opacity-0 pointer-events-none'
-    }`}>
-      {/* Toggle Button - At right edge */}
-      <button
-        onClick={toggleSidebar}
-        className="absolute -right-3 top-6 z-50 p-1.5 rounded-full bg-glass-dark/90 hover:bg-glass-light border border-border-subtle transition-all"
-        title="Toggle sidebar"
-      >
-        <ChevronLeft size={16} className="text-text-secondary" />
-      </button>
+  if (!isSidebarOpen) return null;
 
+  return (
+    <div className="w-56 glass-card flex flex-col h-full flex-shrink-0">
       {/* Header */}
-      <div className="p-4 border-b border-border-subtle flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-primary">Threads</h2>
-        <div className="flex gap-2">
+      <div className="px-3 py-1.5 border-b border-border-subtle flex items-center justify-between">
+        <h2 className="text-base font-semibold text-primary">Threads</h2>
+        <div className="flex gap-1.5 -webkit-app-region-no-drag">
           <button
-            onClick={openSettings}
-            className="p-2 hover:bg-glass-darker rounded transition-colors"
-            title="Settings"
+            onClick={handleClearAllThreads}
+            disabled={isClearingThreads || threads.length === 0}
+            className="p-1.5 hover:bg-glass-darker rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Clear all threads"
           >
-            <Settings size={18} className="text-secondary" />
+            <Trash size={16} className="text-red-400" />
           </button>
           <button
-            onClick={handleCreateThread}
-            className="p-2 hover:bg-glass-darker rounded transition-colors"
-            title="New thread (Cmd+N)"
+            onClick={openSettings}
+            className="p-1.5 hover:bg-glass-darker rounded transition-colors"
+            title="Settings"
           >
-            <Plus size={18} className="text-secondary" />
+            <Settings size={16} className="text-secondary" />
+          </button>
+          <button
+            onClick={toggleSidebar}
+            className="p-1.5 hover:bg-glass-darker rounded transition-colors"
+            title="Close sidebar"
+          >
+            <ChevronLeft size={16} className="text-secondary" />
           </button>
         </div>
       </div>
@@ -83,16 +145,16 @@ export function ThreadSidebar() {
             <p className="text-xs mt-1">Click + to create one</p>
           </div>
         ) : (
-          <div className="p-2 space-y-1">
+          <div className="p-2 space-y-1 -webkit-app-region-no-drag">
             {threads.map((thread) => (
-              <button
+              <div
                 key={thread.id}
-                onClick={() => setCurrentThread(thread.id)}
-                className={`w-full p-3 rounded-lg text-left transition-all group ${
+                className={`w-full p-3 rounded-lg transition-all group cursor-pointer ${
                   currentThreadId === thread.id
                     ? 'bg-accent-blue/20 border border-accent-blue/40'
                     : 'hover:bg-glass-darker border border-transparent'
                 }`}
+                onClick={() => setCurrentThread(thread.id)}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
@@ -122,13 +184,14 @@ export function ThreadSidebar() {
                   {/* Delete button */}
                   <button
                     onClick={(e) => handleDeleteThread(thread.id, e)}
-                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-glass-darker rounded transition-all flex-shrink-0"
+                    disabled={isDeletingThread === thread.id}
+                    className="invisible pointer-events-none group-hover:visible group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 p-1 hover:bg-glass-darker rounded transition-all flex-shrink-0 disabled:opacity-50 -webkit-app-region-no-drag"
                     title="Delete thread"
                   >
                     <Trash2 size={14} className="text-red-400" />
                   </button>
                 </div>
-              </button>
+              </div>
             ))}
           </div>
         )}
@@ -140,9 +203,11 @@ export function ThreadSidebar() {
           variant="primary"
           size="sm"
           onClick={handleCreateThread}
+          disabled={isCreatingThread}
+          isLoading={isCreatingThread}
           className="w-full"
         >
-          <Plus size={16} className="mr-2" />
+          <Plus size={16} />
           New Thread
         </Button>
       </div>

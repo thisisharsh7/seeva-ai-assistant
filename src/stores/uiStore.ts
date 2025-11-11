@@ -7,6 +7,8 @@ interface UIState {
 
   // Screenshot
   currentScreenshot: string | null; // Base64 encoded image
+  isCapturingScreenshot: boolean;
+  isCompressingScreenshot: boolean;
 
   // Loading states
   isSending: boolean;
@@ -24,6 +26,8 @@ interface UIState {
 
   setScreenshot: (screenshot: string | null) => void;
   clearScreenshot: () => void;
+  setCapturingScreenshot: (isCapturing: boolean) => void;
+  setCompressingScreenshot: (isCompressing: boolean) => void;
 
   setIsSending: (isSending: boolean) => void;
 
@@ -35,6 +39,8 @@ export const useUIStore = create<UIState>((set) => ({
   isSettingsOpen: false,
   isScreenshotPreviewOpen: false,
   currentScreenshot: null,
+  isCapturingScreenshot: false,
+  isCompressingScreenshot: false,
   isSending: false,
   isSidebarOpen: true,
 
@@ -51,6 +57,8 @@ export const useUIStore = create<UIState>((set) => ({
 
   setScreenshot: (screenshot) => set({ currentScreenshot: screenshot }),
   clearScreenshot: () => set({ currentScreenshot: null }),
+  setCapturingScreenshot: (isCapturing) => set({ isCapturingScreenshot: isCapturing }),
+  setCompressingScreenshot: (isCompressing) => set({ isCompressingScreenshot: isCompressing }),
 
   // Loading actions
   setIsSending: (isSending) => set({ isSending }),

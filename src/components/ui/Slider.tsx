@@ -1,4 +1,5 @@
 import { InputHTMLAttributes, forwardRef } from 'react';
+import { useTheme } from '../../hooks/useTheme';
 
 interface SliderProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
   label?: string;
@@ -8,7 +9,13 @@ interface SliderProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'
 
 export const Slider = forwardRef<HTMLInputElement, SliderProps>(
   ({ label, showValue = true, valueLabel, value, min = 0, max = 100, step = 1, className = '', ...props }, ref) => {
+    const { theme } = useTheme();
     const percentage = ((Number(value) - Number(min)) / (Number(max) - Number(min))) * 100;
+
+    // Theme-aware track color
+    const trackColor = theme === 'light'
+      ? 'rgb(200 200 210 / 0.5)'
+      : 'rgb(25 25 35 / 0.7)';
 
     return (
       <div className="w-full">
@@ -46,8 +53,8 @@ export const Slider = forwardRef<HTMLInputElement, SliderProps>(
               background: `linear-gradient(to right,
                 rgb(59 130 246 / 0.6) 0%,
                 rgb(59 130 246 / 0.6) ${percentage}%,
-                rgb(25 25 35 / 0.7) ${percentage}%,
-                rgb(25 25 35 / 0.7) 100%)`
+                ${trackColor} ${percentage}%,
+                ${trackColor} 100%)`
             }}
             {...props}
           />

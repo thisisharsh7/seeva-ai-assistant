@@ -16,7 +16,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
         <input
           ref={ref}
-          className={`glass-input w-full px-4 py-2.5 text-primary placeholder-tertiary focus:outline-none focus:ring-2 focus:ring-accent-blue/50 ${className}`}
+          className={`glass-input w-full px-3 py-1.5 text-primary placeholder:text-tertiary focus:outline-none focus:ring-2 focus:ring-accent-blue/50 ${className}`}
           {...props}
         />
         {error && (

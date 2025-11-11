@@ -64,24 +64,52 @@ impl ScreenshotService {
 
     /// Capture screenshot of primary screen and return as base64 encoded PNG
     pub fn capture_primary_screen(&self) -> Result<String, ScreenshotError> {
+        println!("🖥️  [SERVICE] capture_primary_screen() called");
+
+        // Get all screens from OS
+        println!("🔍 [SERVICE] Querying OS for available screens...");
         let screens = Screen::all()
-            .map_err(|e| ScreenshotError::CaptureError(e.to_string()))?;
+            .map_err(|e| {
+                eprintln!("❌ [SERVICE] Failed to get screens from OS: {}", e);
+                ScreenshotError::CaptureError(e.to_string())
+            })?;
+
+        println!("✅ [SERVICE] Found {} screen(s)", screens.len());
 
         if screens.is_empty() {
+            eprintln!("❌ [SERVICE] No screens available - cannot capture screenshot");
             return Err(ScreenshotError::NoScreensAvailable);
         }
 
+        // Get primary screen (index 0)
         let screen = &screens[0];
+        println!("📱 [SERVICE] Using primary screen (index 0)");
+        println!("📏 [SERVICE] Screen dimensions: {}x{}", screen.display_info.width, screen.display_info.height);
+
+        // Capture screenshot
+        println!("📸 [SERVICE] Capturing screenshot from primary screen...");
         let screenshot = screen
             .capture()
-            .map_err(|e| ScreenshotError::CaptureError(e.to_string()))?;
+            .map_err(|e| {
+                eprintln!("❌ [SERVICE] Screen capture failed: {}", e);
+                ScreenshotError::CaptureError(e.to_string())
+            })?;
+
+        println!("✅ [SERVICE] Raw screenshot captured: {}x{} pixels", screenshot.width(), screenshot.height());
 
         // Convert to RgbaImage
+        println!("🔄 [SERVICE] Converting raw bytes to RGBA image...");
         let rgba_image = image::RgbaImage::from_raw(
             screenshot.width(),
             screenshot.height(),
             screenshot.as_raw().to_vec()
-        ).ok_or_else(|| ScreenshotError::EncodeError("Failed to create RgbaImage".to_string()))?;
+        ).ok_or_else(|| {
+            eprintln!("❌ [SERVICE] Failed to convert raw bytes to RGBA image");
+            ScreenshotError::EncodeError("Failed to create RgbaImage".to_string())
+        })?;
+
+        println!("✅ [SERVICE] RGBA image created successfully");
+        println!("🎨 [SERVICE] Starting image encoding pipeline...");
 
         self.encode_image_to_base64(&rgba_image)
     }
@@ -121,26 +149,76 @@ impl ScreenshotService {
         Ok(screens.len())
     }
 
-    /// Encode image buffer to base64 PNG string
+    /// Resize image if it exceeds max dimensions (maintaining aspect ratio)
+    fn resize_image(&self, img: &image::RgbaImage, max_width: u32) -> image::RgbaImage {
+        let (width, height) = img.dimensions();
+
+        // If image is already smaller than max, return as-is
+        if width <= max_width {
+            return img.clone();
+        }
+
+        // Calculate new dimensions maintaining aspect ratio
+        let scale = max_width as f32 / width as f32;
+        let new_width = max_width;
+        let new_height = (height as f32 * scale) as u32;
+
+        image::imageops::resize(
+            img,
+            new_width,
+            new_height,
+            image::imageops::FilterType::Lanczos3,
+        )
+    }
+
+    /// Encode image buffer to base64 JPEG string with compression
     fn encode_image_to_base64(
         &self,
         img: &image::RgbaImage,
     ) -> Result<String, ScreenshotError> {
-        // Convert to PNG bytes
-        let mut png_bytes = Vec::new();
-        let mut cursor = Cursor::new(&mut png_bytes);
+        println!("📐 [ENCODE] Input image dimensions: {}x{}", img.width(), img.height());
 
-        image::codecs::png::PngEncoder::new(&mut cursor)
+        // Resize image to max 2048px width to reduce size
+        println!("🔄 [ENCODE] Resizing image (max width: 2048px)...");
+        let resized_img = self.resize_image(img, 2048);
+        println!("✅ [ENCODE] Image resized to: {}x{}", resized_img.width(), resized_img.height());
+
+        // Convert RGBA to RGB (JPEG doesn't support alpha channel)
+        println!("🔄 [ENCODE] Converting RGBA → RGB (JPEG requirement)...");
+        let rgb_img = image::DynamicImage::ImageRgba8(resized_img).to_rgb8();
+        println!("✅ [ENCODE] RGB conversion complete");
+
+        // Convert to JPEG bytes with quality 85
+        println!("🗜️  [ENCODE] Encoding to JPEG (quality: 85)...");
+        let mut jpeg_bytes = Vec::new();
+        let mut cursor = Cursor::new(&mut jpeg_bytes);
+
+        image::codecs::jpeg::JpegEncoder::new_with_quality(&mut cursor, 85)
             .write_image(
-                &img.as_raw()[..],
-                img.width(),
-                img.height(),
-                image::ExtendedColorType::Rgba8,
+                &rgb_img.as_raw()[..],
+                rgb_img.width(),
+                rgb_img.height(),
+                image::ExtendedColorType::Rgb8,
             )
-            .map_err(|e| ScreenshotError::EncodeError(e.to_string()))?;
+            .map_err(|e| {
+                eprintln!("❌ [ENCODE] JPEG encoding failed: {}", e);
+                ScreenshotError::EncodeError(e.to_string())
+            })?;
+
+        // Log compression results
+        let jpeg_size_kb = jpeg_bytes.len() / 1024;
+        println!("✅ [ENCODE] JPEG encoding complete: {} KB", jpeg_size_kb);
+        println!("📊 [ENCODE] Compression summary: {}x{} → JPEG {} KB",
+            img.width(), img.height(),
+            jpeg_size_kb
+        );
 
         // Encode to base64
-        let base64_string = general_purpose::STANDARD.encode(&png_bytes);
+        println!("🔄 [ENCODE] Converting JPEG to base64 string...");
+        let base64_string = general_purpose::STANDARD.encode(&jpeg_bytes);
+        println!("✅ [ENCODE] Base64 encoding complete ({} chars)", base64_string.len());
+
+        println!("🎉 [ENCODE] Image encoding pipeline complete!");
 
         Ok(base64_string)
     }

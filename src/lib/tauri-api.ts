@@ -129,6 +129,24 @@ export const screenshotAPI = {
   },
 };
 
+// Shortcut API
+export const shortcutAPI = {
+  register: async (shortcut: string): Promise<void> => {
+    return await invoke('register_global_shortcut', { shortcut });
+  },
+
+  unregister: async (): Promise<void> => {
+    return await invoke('unregister_global_shortcut');
+  },
+
+  // Listen for toggle-window events
+  onToggle: (callback: () => void) => {
+    return listen('toggle-window', () => {
+      callback();
+    });
+  },
+};
+
 // Stream event types
 export type StreamEvent =
   | { type: 'content_delta'; delta: string }

@@ -143,7 +143,7 @@ impl AnthropicProvider {
                         .map(|img_data| ContentBlock::Image {
                             source: ImageSource {
                                 source_type: "base64".to_string(),
-                                media_type: "image/png".to_string(),
+                                media_type: "image/jpeg".to_string(), // Changed from PNG to JPEG
                                 data: img_data,
                             },
                         })

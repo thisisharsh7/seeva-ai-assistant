@@ -66,12 +66,12 @@ export function Modal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border-subtle">
-          <h2 className="text-xl font-semibold text-text-primary">{title}</h2>
+        <div className="flex items-center justify-between p-3 border-b border-border-subtle">
+          <h2 className="text-lg font-semibold text-primary">{title}</h2>
           {showCloseButton && (
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-glass-light transition-colors text-text-secondary hover:text-text-primary"
+              className="p-2 rounded-lg hover:bg-glass-light transition-colors text-secondary hover:text-primary"
               aria-label="Close modal"
             >
               <X size={20} />
@@ -80,7 +80,7 @@ export function Modal({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4">
           {children}
         </div>
       </div>

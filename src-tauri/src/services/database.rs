@@ -10,6 +10,10 @@ pub struct Database {
 impl Database {
     pub fn new(db_path: PathBuf) -> Result<Self> {
         let conn = Connection::open(db_path)?;
+
+        // Enable foreign key constraints
+        conn.execute("PRAGMA foreign_keys = ON", [])?;
+
         let db = Self {
             conn: Arc::new(Mutex::new(conn)),
         };

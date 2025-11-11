@@ -19,6 +19,7 @@ interface ChatState {
   setCurrentThread: (threadId: string) => Promise<void>;
   createThread: (name: string) => Promise<void>;
   deleteThread: (threadId: string) => Promise<void>;
+  clearAllThreads: () => Promise<void>;
   renameThread: (threadId: string, name: string) => Promise<void>;
 
   loadMessages: (threadId: string) => Promise<void>;
@@ -85,6 +86,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   createThread: async (name) => {
+    const { useToastStore } = await import('../hooks/useToast');
     try {
       const newThread = await threadAPI.create(name);
       set((state) => ({
@@ -92,19 +94,52 @@ export const useChatStore = create<ChatState>((set, get) => ({
         currentThreadId: newThread.id,
         messages: [], // Clear messages for new thread
       }));
+
+      useToastStore.getState().addToast({
+        type: 'success',
+        message: `Thread "${name}" created successfully`,
+        duration: 3000
+      });
     } catch (error) {
       console.error('Failed to create thread:', error);
+
+      let errorMessage = 'Unknown error occurred';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+
+      useToastStore.getState().addToast({
+        type: 'error',
+        message: `Failed to create thread: ${errorMessage}`,
+        duration: 5000
+      });
+
+      throw error; // Re-throw so the UI can handle it
     }
   },
 
   deleteThread: async (threadId) => {
+    console.log('🏪 Store: deleteThread called for:', threadId);
+    const { useToastStore } = await import('../hooks/useToast');
     try {
+      // Get thread name before deleting
+      const thread = get().threads.find(t => t.id === threadId);
+      const threadName = thread?.name || 'Thread';
+      console.log('📝 Thread to delete:', threadName, '(ID:', threadId, ')');
+
+      console.log('📡 Calling backend API: threadAPI.delete');
       await threadAPI.delete(threadId);
+      console.log('✅ Backend API call successful');
+
       set((state) => {
         const newThreads = state.threads.filter(t => t.id !== threadId);
         const newCurrentId = state.currentThreadId === threadId
           ? (newThreads[0]?.id || null)
           : state.currentThreadId;
+
+        console.log('🔄 Updating state: newThreads count:', newThreads.length, 'newCurrentId:', newCurrentId);
 
         return {
           threads: newThreads,
@@ -113,13 +148,89 @@ export const useChatStore = create<ChatState>((set, get) => ({
         };
       });
 
+      // Check if no threads remain after deletion
+      const remainingThreads = get().threads;
+      if (remainingThreads.length === 0) {
+        console.log('⚠️ No threads remaining, creating new default thread');
+        // Create a new default thread using existing logic
+        await get().loadThreads();
+        console.log('✅ Thread deletion completed successfully with new thread created');
+        return; // Exit early since loadThreads handles everything
+      }
+
       // Load messages for new current thread
       const newCurrentId = get().currentThreadId;
       if (newCurrentId) {
+        console.log('📨 Loading messages for new current thread:', newCurrentId);
         await get().loadMessages(newCurrentId);
       }
+
+      console.log('✅ Thread deletion completed successfully');
+      useToastStore.getState().addToast({
+        type: 'success',
+        message: `Thread "${threadName}" deleted successfully`,
+        duration: 3000
+      });
     } catch (error) {
-      console.error('Failed to delete thread:', error);
+      console.error('❌ Store: Failed to delete thread:', error);
+
+      let errorMessage = 'Unknown error occurred';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+
+      useToastStore.getState().addToast({
+        type: 'error',
+        message: `Failed to delete thread: ${errorMessage}`,
+        duration: 5000
+      });
+
+      throw error; // Re-throw so the UI can handle it
+    }
+  },
+
+  clearAllThreads: async () => {
+    const { useToastStore } = await import('../hooks/useToast');
+    try {
+      const threadIds = get().threads.map(t => t.id);
+
+      // Delete all threads
+      await Promise.all(threadIds.map(id => threadAPI.delete(id)));
+
+      // Clear state
+      set({
+        threads: [],
+        currentThreadId: null,
+        messages: [],
+      });
+
+      // Create a new default thread
+      await get().loadThreads();
+
+      useToastStore.getState().addToast({
+        type: 'success',
+        message: `All threads cleared successfully`,
+        duration: 3000
+      });
+    } catch (error) {
+      console.error('Failed to clear threads:', error);
+
+      let errorMessage = 'Unknown error occurred';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+
+      useToastStore.getState().addToast({
+        type: 'error',
+        message: `Failed to clear threads: ${errorMessage}`,
+        duration: 5000
+      });
+
+      throw error; // Re-throw so the UI can handle it
     }
   },
 
@@ -221,8 +332,21 @@ export const useChatStore = create<ChatState>((set, get) => ({
         streamingContent: '',
       }));
 
-      // Reload threads to update counts and last message
-      await get().loadThreads();
+      // Add a small delay before reloading to ensure backend has persisted the message
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      // Reload only the messages for the current thread instead of all threads
+      // This prevents race conditions where we load messages before they're persisted
+      await get().loadMessages(currentThreadId);
+
+      // Reload threads to update counts and last message (without reloading messages again)
+      try {
+        const threads = await threadAPI.list();
+        const currentId = await threadAPI.getCurrentId();
+        set({ threads, currentThreadId: currentId || threads[0]?.id || null });
+      } catch (error) {
+        console.error('Failed to reload threads after message:', error);
+      }
     } catch (error) {
       console.error('Failed to send message:', error);
 

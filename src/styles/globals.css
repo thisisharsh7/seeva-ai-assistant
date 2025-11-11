@@ -1,30 +1,49 @@
 @import "tailwindcss";
 
 @theme {
-  /* Glass surface colors */
-  --color-glass-dark: rgb(10 10 15 / 0.85);
-  --color-glass-darker: rgb(5 5 10 / 0.9);
-  --color-glass-light: rgb(25 25 35 / 0.7);
+  /* Dark theme glass surface colors - Improved for better contrast */
+  --color-glass-dark: rgb(15 15 25 / 0.85);
+  --color-glass-darker: rgb(10 10 20 / 0.9);
+  --color-glass-light: rgb(30 30 45 / 0.75);
 
-  /* Border colors */
-  --color-border-subtle: rgb(255 255 255 / 0.1);
+  /* Light theme glass surface colors - Improved for better definition */
+  --color-glass-light-primary: rgb(255 255 255 / 0.95);
+  --color-glass-light-secondary: rgb(242 242 247 / 0.9);
+  --color-glass-light-tertiary: rgb(230 230 240 / 0.85);
+
+  /* Border colors - Increased visibility */
+  --color-border-subtle: rgb(255 255 255 / 0.15);
   --color-border-focus: rgb(59 130 246 / 0.5);
 
-  /* Text colors */
+  /* Light theme border colors - Increased visibility */
+  --color-border-light-subtle: rgb(0 0 0 / 0.15);
+  --color-border-light-focus: rgb(59 130 246 / 0.5);
+
+  /* Dark theme text colors - Improved tertiary readability */
   --color-text-primary: rgb(255 255 255 / 0.95);
   --color-text-secondary: rgb(255 255 255 / 0.7);
-  --color-text-tertiary: rgb(255 255 255 / 0.5);
+  --color-text-tertiary: rgb(255 255 255 / 0.65);
+
+  /* Light theme text colors - Improved tertiary readability */
+  --color-text-light-primary: rgb(10 10 15 / 0.95);
+  --color-text-light-secondary: rgb(10 10 15 / 0.85);
+  --color-text-light-tertiary: rgb(10 10 15 / 0.8);
 
   /* Accent colors */
   --color-accent-blue: #3b82f6;
   --color-accent-purple: #8b5cf6;
 
-  /* Box shadows */
+  /* Dark theme box shadows */
   --shadow-glass-sm: 0 2px 8px rgb(0 0 0 / 0.2);
   --shadow-glass-md: 0 4px 16px rgb(0 0 0 / 0.3);
   --shadow-glass-lg: 0 8px 32px rgb(0 0 0 / 0.4);
 
-  /* Backdrop blur values */
+  /* Light theme box shadows - Increased for better depth perception */
+  --shadow-glass-light-sm: 0 2px 8px rgb(0 0 0 / 0.12);
+  --shadow-glass-light-md: 0 4px 16px rgb(0 0 0 / 0.18);
+  --shadow-glass-light-lg: 0 8px 32px rgb(0 0 0 / 0.24);
+
+  /* Backdrop blur values (same for both themes) */
   --blur-glass-sm: 10px;
   --blur-glass-md: 20px;
   --blur-glass-lg: 40px;
@@ -35,7 +54,7 @@
 
 @layer base {
   * {
-    border-color: rgb(255 255 255 / 0.1);
+    border-color: rgb(255 255 255 / 0.15);
   }
 
   body {
@@ -46,7 +65,16 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Custom scrollbar */
+  /* Light theme base styles */
+  [data-theme="light"] * {
+    border-color: rgb(0 0 0 / 0.15);
+  }
+
+  [data-theme="light"] body {
+    color: rgb(10 10 15 / 0.95);
+  }
+
+  /* Custom scrollbar - Dark theme */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -65,40 +93,53 @@
   ::-webkit-scrollbar-thumb:hover {
     background-color: rgb(255 255 255 / 0.1);
   }
+
+  /* Custom scrollbar - Light theme */
+  [data-theme="light"] ::-webkit-scrollbar-track {
+    background-color: rgb(245 245 250 / 0.8);
+  }
+
+  [data-theme="light"] ::-webkit-scrollbar-thumb {
+    background-color: rgb(200 200 210 / 0.7);
+  }
+
+  [data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(150 150 160 / 0.8);
+  }
 }
 
 @layer components {
-  /* Glassmorphism utilities */
+  /* Glassmorphism utilities - Dark theme */
   .glass-window {
-    background-color: rgb(10 10 15 / 0.85);
+    background-color: rgb(15 15 25 / 0.85);
     backdrop-filter: blur(20px);
-    border: 1px solid rgb(255 255 255 / 0.1);
+    border: 1px solid rgb(255 255 255 / 0.15);
     box-shadow: 0 8px 32px rgb(0 0 0 / 0.4);
     border-radius: 0.5rem;
   }
 
   .glass-card {
-    background-color: rgb(25 25 35 / 0.7);
+    background-color: rgb(30 30 45 / 0.75);
     backdrop-filter: blur(10px);
-    border: 1px solid rgb(255 255 255 / 0.1);
+    border: 1px solid rgb(255 255 255 / 0.15);
     box-shadow: 0 4px 16px rgb(0 0 0 / 0.3);
     border-radius: 0.375rem;
   }
 
   .glass-button {
-    background-color: rgb(25 25 35 / 0.7);
-    border: 1px solid rgb(255 255 255 / 0.1);
+    background-color: rgb(30 30 45 / 0.75);
+    border: 1px solid rgb(255 255 255 / 0.15);
     border-radius: 0.375rem;
     transition: all 0.2s;
   }
 
   .glass-button:hover {
-    background-color: rgb(5 5 10 / 0.9);
+    background-color: rgb(40 40 60 / 0.85);
   }
 
   .glass-input {
-    background-color: rgb(5 5 10 / 0.9);
-    border: 1px solid rgb(255 255 255 / 0.1);
+    background-color: rgb(10 10 20 / 0.9);
+    border: 1px solid rgb(255 255 255 / 0.15);
     border-radius: 0.375rem;
     transition: border-color 0.2s;
   }
@@ -108,21 +149,65 @@
     outline: none;
   }
 
-  /* Message bubbles */
+  /* Glassmorphism utilities - Light theme */
+  [data-theme="light"] .glass-window {
+    background-color: rgb(255 255 255 / 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgb(0 0 0 / 0.15);
+    box-shadow: 0 8px 32px rgb(0 0 0 / 0.24);
+  }
+
+  [data-theme="light"] .glass-card {
+    background-color: rgb(242 242 247 / 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgb(0 0 0 / 0.15);
+    box-shadow: 0 4px 16px rgb(0 0 0 / 0.18);
+  }
+
+  [data-theme="light"] .glass-button {
+    background-color: rgb(242 242 247 / 0.9);
+    border: 1px solid rgb(0 0 0 / 0.15);
+  }
+
+  [data-theme="light"] .glass-button:hover {
+    background-color: rgb(230 230 240 / 0.95);
+  }
+
+  [data-theme="light"] .glass-input {
+    background-color: rgb(255 255 255 / 0.95);
+    border: 1px solid rgb(0 0 0 / 0.15);
+  }
+
+  [data-theme="light"] .glass-input:focus {
+    border-color: rgb(59 130 246 / 0.5);
+  }
+
+  /* Message bubbles - Dark theme */
   .message-user {
-    background-color: rgb(59 130 246 / 0.2);
-    border: 1px solid rgb(59 130 246 / 0.4);
-    border-radius: 0.5rem;
-    margin-left: auto;
-    max-width: 80%;
+    background-color: rgb(59 130 246 / 0.25);
+    border: 1px solid rgb(59 130 246 / 0.5);
+    box-shadow: 0 2px 8px rgb(59 130 246 / 0.15);
+    border-radius: 0.75rem;
   }
 
   .message-assistant {
-    background-color: rgb(25 25 35 / 0.7);
-    border: 1px solid rgb(255 255 255 / 0.1);
-    border-radius: 0.5rem;
-    margin-right: auto;
-    max-width: 80%;
+    background-color: rgb(30 30 45 / 0.8);
+    border: 1px solid rgb(255 255 255 / 0.15);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.2);
+    border-radius: 0.75rem;
+  }
+
+  /* Message bubbles - Light theme */
+  [data-theme="light"] .message-user {
+    background-color: rgb(59 130 246 / 0.18);
+    border: 1px solid rgb(59 130 246 / 0.35);
+    box-shadow: 0 2px 8px rgb(59 130 246 / 0.1);
+  }
+
+  [data-theme="light"] .message-assistant {
+    background-color: rgb(242 242 247 / 0.95);
+    border: 1px solid rgb(0 0 0 / 0.15);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
   }
 
   /* Animations */
@@ -156,7 +241,7 @@
 }
 
 @layer utilities {
-  /* Text utilities */
+  /* Text utilities - Dark theme */
   .text-primary {
     color: rgb(255 255 255 / 0.95);
   }
@@ -167,6 +252,58 @@
 
   .text-tertiary {
     color: rgb(255 255 255 / 0.5);
+  }
+
+  /* Text utilities - Light theme */
+  [data-theme="light"] .text-primary {
+    color: rgb(10 10 15 / 0.95);
+  }
+
+  [data-theme="light"] .text-secondary {
+    color: rgb(10 10 15 / 0.85);
+  }
+
+  [data-theme="light"] .text-tertiary {
+    color: rgb(10 10 15 / 0.8);
+  }
+
+  /* Placeholder text utilities - Light theme */
+  [data-theme="light"] .placeholder-text-tertiary::placeholder {
+    color: rgb(10 10 15 / 0.6);
+  }
+
+  /* Light mode glass background overrides */
+  [data-theme="light"] .bg-glass-dark {
+    background-color: rgb(255 255 255 / 0.95) !important;
+  }
+
+  [data-theme="light"] .bg-glass-dark\/80 {
+    background-color: rgb(255 255 255 / 0.8) !important;
+  }
+
+  [data-theme="light"] .hover\:bg-glass-light:hover {
+    background-color: rgb(242 242 247 / 0.9);
+  }
+
+  [data-theme="light"] .hover\:bg-glass-darker:hover {
+    background-color: rgb(230 230 240 / 0.85);
+  }
+
+  [data-theme="light"] .hover\:bg-glass-light\/80:hover {
+    background-color: rgb(230 230 240 / 0.8);
+  }
+
+  [data-theme="light"] .bg-glass-light {
+    background-color: rgb(242 242 247 / 0.9);
+  }
+
+  [data-theme="light"] .bg-glass-light\/50 {
+    background-color: rgb(242 242 247 / 0.5);
+  }
+
+  /* Light mode border overrides */
+  [data-theme="light"] .border-border-subtle {
+    border-color: rgb(0 0 0 / 0.15);
   }
 
   /* Gradient utilities */

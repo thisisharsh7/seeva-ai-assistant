@@ -3,10 +3,10 @@ mod services;
 mod managers;
 mod commands;
 
-use commands::settings::{AppSettings, SettingsState};
+use commands::settings::SettingsState;
 use managers::ThreadManager;
-use services::{Database, ScreenshotService};
-use std::sync::{Arc, Mutex};
+use services::{Database, ScreenshotService, SettingsManager};
+use std::sync::Arc;
 use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -16,6 +16,8 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .setup(|app| {
             // Get app data directory
             let app_dir = app
@@ -36,13 +38,28 @@ pub fn run() {
             // Initialize ScreenshotService
             let screenshot_service = Arc::new(ScreenshotService::new());
 
-            // Initialize Settings
-            let settings: SettingsState = Arc::new(Mutex::new(AppSettings::default()));
+            // Initialize Settings with file persistence
+            let settings_path = app_dir.join("settings.json");
+            let settings: SettingsState = Arc::new(
+                SettingsManager::new(settings_path).expect("Failed to initialize settings")
+            );
 
             // Manage state
             app.manage(thread_manager);
             app.manage(screenshot_service);
-            app.manage(settings);
+            app.manage(settings.clone());
+
+            // Register global shortcut from settings
+            let app_handle = app.handle().clone();
+            let shortcut = settings.get().map(|s| s.shortcut.clone()).unwrap_or_default();
+
+            if !shortcut.is_empty() {
+                tauri::async_runtime::spawn(async move {
+                    if let Err(e) = commands::register_global_shortcut(shortcut, app_handle).await {
+                        eprintln!("Failed to register global shortcut: {}", e);
+                    }
+                });
+            }
 
             Ok(())
         })
@@ -70,6 +87,9 @@ pub fn run() {
             commands::capture_all_screenshots,
             commands::capture_screen_by_index,
             commands::get_screen_count,
+            // Shortcut commands
+            commands::register_global_shortcut,
+            commands::unregister_global_shortcut,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

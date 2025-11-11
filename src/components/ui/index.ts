@@ -6,3 +6,4 @@ export { Select } from './Select';
 export { Toggle } from './Toggle';
 export { Slider } from './Slider';
 export { ToastContainer } from './Toast';
+export { ShortcutRecorder } from './ShortcutRecorder';
