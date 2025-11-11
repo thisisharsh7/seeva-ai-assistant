@@ -28,9 +28,9 @@ pub async fn capture_screenshot(
     println!("✅ [SCREENSHOT] Window hidden successfully");
 
     // Wait for window to fully hide (macOS animation takes ~100-150ms)
-    // TODO: Make this delay configurable in settings
-    println!("⏳ [SCREENSHOT] Waiting 250ms for window hide animation to complete...");
-    tokio::time::sleep(tokio::time::Duration::from_millis(250)).await;
+    // Increased delay to account for animation variance and compositor timing
+    println!("⏳ [SCREENSHOT] Waiting 400ms for window hide animation to complete...");
+    tokio::time::sleep(tokio::time::Duration::from_millis(400)).await;
     println!("✅ [SCREENSHOT] Window hide delay complete");
 
     // Capture screenshot - this will take time (400-500ms for full processing)
@@ -45,10 +45,11 @@ pub async fn capture_screenshot(
         service.capture_primary_screen()
     });
 
-    // CRITICAL: Show window IMMEDIATELY after starting capture
+    // CRITICAL: Show window after capture task has started
     // Don't wait for capture to finish - restore window while processing happens
+    // Increased delay to ensure thread pool has time to pick up and start the capture task
     println!("👁️  [SCREENSHOT] Restoring window visibility while capture processes...");
-    tokio::time::sleep(tokio::time::Duration::from_millis(50)).await; // Small delay for capture to start
+    tokio::time::sleep(tokio::time::Duration::from_millis(200)).await; // Wait for capture to actually start
 
     let mut restore_success = false;
     let max_retries = 3;

@@ -143,7 +143,7 @@ export function InputBar() {
   };
 
   return (
-    <div className="absolute bottom-0 left-0 right-0">
+    <div className="flex-shrink-0">
       {/* API Key Warning */}
       {!hasApiKey && (
         <div className="px-4 pb-2">

@@ -20,17 +20,17 @@ interface ToastProps {
 
 function Toast({ toast, onClose }: ToastProps) {
   const icons = {
-    success: <CheckCircle size={20} className="text-green-400" />,
-    error: <XCircle size={20} className="text-red-400" />,
-    info: <Info size={20} className="text-blue-400" />,
-    warning: <AlertTriangle size={20} className="text-yellow-400" />,
+    success: <CheckCircle size={20} className="toast-icon-success" />,
+    error: <XCircle size={20} className="toast-icon-error" />,
+    info: <Info size={20} className="toast-icon-info" />,
+    warning: <AlertTriangle size={20} className="toast-icon-warning" />,
   };
 
   const bgColors = {
-    success: 'bg-green-500/10 border-green-500/30',
-    error: 'bg-red-500/10 border-red-500/30',
-    info: 'bg-blue-500/10 border-blue-500/30',
-    warning: 'bg-yellow-500/10 border-yellow-500/30',
+    success: 'toast-bg-success',
+    error: 'toast-bg-error',
+    info: 'toast-bg-info',
+    warning: 'toast-bg-warning',
   };
 
   return (

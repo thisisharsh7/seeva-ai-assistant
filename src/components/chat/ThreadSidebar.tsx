@@ -5,7 +5,11 @@ import { Plus, MessageSquare, Trash2, Settings, ChevronLeft, Trash } from 'lucid
 import { useUIStore } from '../../stores/uiStore';
 import { ask, message } from '@tauri-apps/plugin-dialog';
 
-export function ThreadSidebar() {
+interface ThreadSidebarProps {
+  isOverlayMode?: boolean;
+}
+
+export function ThreadSidebar({ isOverlayMode = false }: ThreadSidebarProps) {
   const { threads, currentThreadId, setCurrentThread, createThread, deleteThread, clearAllThreads } = useChatStore();
   const { openSettings, isSidebarOpen, toggleSidebar } = useUIStore();
   const [isCreatingThread, setIsCreatingThread] = useState(false);
@@ -106,11 +110,14 @@ export function ThreadSidebar() {
   if (!isSidebarOpen) return null;
 
   return (
-    <div className="w-56 glass-card flex flex-col h-full flex-shrink-0">
+    <div className={`
+      w-56 glass-card flex flex-col h-full flex-shrink-0
+      ${isOverlayMode ? 'animate-slide-in-left shadow-2xl' : ''}
+    `}>
       {/* Header */}
-      <div className="px-3 py-1.5 border-b border-border-subtle flex items-center justify-between">
+      <div data-tauri-drag-region className="px-3 py-1.5 border-b border-border-subtle flex items-center justify-between cursor-move">
         <h2 className="text-base font-semibold text-primary">Threads</h2>
-        <div className="flex gap-1.5 -webkit-app-region-no-drag">
+        <div className="flex gap-1.5">
           <button
             onClick={handleClearAllThreads}
             disabled={isClearingThreads || threads.length === 0}
@@ -145,7 +152,7 @@ export function ThreadSidebar() {
             <p className="text-xs mt-1">Click + to create one</p>
           </div>
         ) : (
-          <div className="p-2 space-y-1 -webkit-app-region-no-drag">
+          <div className="p-2 space-y-1">
             {threads.map((thread) => (
               <div
                 key={thread.id}
@@ -154,7 +161,13 @@ export function ThreadSidebar() {
                     ? 'bg-accent-blue/20 border border-accent-blue/40'
                     : 'hover:bg-glass-darker border border-transparent'
                 }`}
-                onClick={() => setCurrentThread(thread.id)}
+                onClick={() => {
+                  setCurrentThread(thread.id);
+                  // Auto-close sidebar in overlay mode after selecting thread
+                  if (isOverlayMode) {
+                    toggleSidebar();
+                  }
+                }}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
@@ -185,7 +198,7 @@ export function ThreadSidebar() {
                   <button
                     onClick={(e) => handleDeleteThread(thread.id, e)}
                     disabled={isDeletingThread === thread.id}
-                    className="invisible pointer-events-none group-hover:visible group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 p-1 hover:bg-glass-darker rounded transition-all flex-shrink-0 disabled:opacity-50 -webkit-app-region-no-drag"
+                    className="invisible pointer-events-none group-hover:visible group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 p-1 hover:bg-glass-darker rounded transition-all flex-shrink-0 disabled:opacity-50"
                     title="Delete thread"
                   >
                     <Trash2 size={14} className="text-red-400" />

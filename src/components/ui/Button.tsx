@@ -16,7 +16,7 @@ export function Button({
   disabled,
   ...props
 }: ButtonProps) {
-  const baseStyles = 'glass-button font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed -webkit-app-region-no-drag flex items-center justify-center gap-2';
+  const baseStyles = 'glass-button font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2';
 
   const variantStyles = {
     primary: 'hover:shadow-glass-md text-primary',

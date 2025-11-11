@@ -116,6 +116,7 @@
     border: 1px solid rgb(255 255 255 / 0.15);
     box-shadow: 0 8px 32px rgb(0 0 0 / 0.4);
     border-radius: 0.5rem;
+    transition: margin 200ms ease-out, flex 200ms ease-out;
   }
 
   .glass-card {
@@ -226,6 +227,21 @@
     animation: slide-in 0.2s ease-out;
   }
 
+  @keyframes slide-in-left {
+    from {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-slide-in-left {
+    animation: slide-in-left 0.3s ease-out;
+  }
+
   @keyframes pulse-subtle {
     0%, 100% {
       opacity: 1;
@@ -311,12 +327,77 @@
     background-image: linear-gradient(135deg, #3b82f6, #8b5cf6);
   }
 
-  /* Drag utilities for Tauri */
-  .-webkit-app-region-drag {
-    -webkit-app-region: drag;
+  /* Toast notification styles - Dark theme */
+  .toast-bg-success {
+    background-color: rgb(34 197 94 / 0.1);
+    border-color: rgb(34 197 94 / 0.3);
   }
 
-  .-webkit-app-region-no-drag {
-    -webkit-app-region: no-drag;
+  .toast-bg-error {
+    background-color: rgb(239 68 68 / 0.1);
+    border-color: rgb(239 68 68 / 0.3);
+  }
+
+  .toast-bg-info {
+    background-color: rgb(59 130 246 / 0.1);
+    border-color: rgb(59 130 246 / 0.3);
+  }
+
+  .toast-bg-warning {
+    background-color: rgb(234 179 8 / 0.1);
+    border-color: rgb(234 179 8 / 0.3);
+  }
+
+  .toast-icon-success {
+    color: rgb(74 222 128);
+  }
+
+  .toast-icon-error {
+    color: rgb(248 113 113);
+  }
+
+  .toast-icon-info {
+    color: rgb(96 165 250);
+  }
+
+  .toast-icon-warning {
+    color: rgb(250 204 21);
+  }
+
+  /* Toast notification styles - Light theme */
+  [data-theme="light"] .toast-bg-success {
+    background-color: rgb(34 197 94 / 0.25);
+    border-color: rgb(34 197 94 / 0.6);
+  }
+
+  [data-theme="light"] .toast-bg-error {
+    background-color: rgb(239 68 68 / 0.25);
+    border-color: rgb(239 68 68 / 0.6);
+  }
+
+  [data-theme="light"] .toast-bg-info {
+    background-color: rgb(59 130 246 / 0.25);
+    border-color: rgb(59 130 246 / 0.6);
+  }
+
+  [data-theme="light"] .toast-bg-warning {
+    background-color: rgb(234 179 8 / 0.25);
+    border-color: rgb(234 179 8 / 0.6);
+  }
+
+  [data-theme="light"] .toast-icon-success {
+    color: rgb(22 163 74);
+  }
+
+  [data-theme="light"] .toast-icon-error {
+    color: rgb(220 38 38);
+  }
+
+  [data-theme="light"] .toast-icon-info {
+    color: rgb(37 99 235);
+  }
+
+  [data-theme="light"] .toast-icon-warning {
+    color: rgb(180 83 9);
   }
 }

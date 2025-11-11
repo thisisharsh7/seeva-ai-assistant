@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { useChatStore } from '../../stores/chatStore';
-import { useUIStore } from '../../stores/uiStore';
 import { MessageBubble } from './MessageBubble';
 import { Spinner } from '../ui';
 import { MessageSquare } from 'lucide-react';
@@ -46,7 +45,7 @@ export function MessageList() {
   return (
     <div
       ref={containerRef}
-      className="flex-1 overflow-y-auto px-4 py-6 pb-32 space-y-3"
+      className="flex-1 overflow-y-auto px-4 py-6 pb-6 space-y-3"
     >
       {/* Existing messages */}
       {currentMessages.map((message) => (
