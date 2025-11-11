@@ -5,6 +5,9 @@ AI assistant that appears anywhere, sees your screen.
 ![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-macOS-lightgrey.svg)
 
+discord username  - thisisharsh7
+
+
 ## What It Does
 
 Seeva is a universal AI assistant that appears instantly with a single keystroke, no matter what you are doing on your computer. Press a hotkey, click "Watch Screen", and get AI help with what you are looking at without breaking your flow.
