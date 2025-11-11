@@ -7,16 +7,15 @@ import { MessageSquare } from 'lucide-react';
 
 export function MessageList() {
   const { currentThreadId, isStreaming, streamingContent, getThreadMessages } = useChatStore();
-  const { currentScreenshot, isCapturingScreenshot, isCompressingScreenshot } = useUIStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const currentMessages = currentThreadId ? getThreadMessages(currentThreadId) : [];
 
-  // Auto-scroll to bottom when new messages arrive or screenshot appears
+  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [currentMessages.length, streamingContent, currentScreenshot, isCompressingScreenshot]);
+  }, [currentMessages.length, streamingContent]);
 
   if (!currentThreadId) {
     return (
@@ -53,19 +52,6 @@ export function MessageList() {
       {currentMessages.map((message) => (
         <MessageBubble key={message.id} message={message} />
       ))}
-
-      {/* Screenshot being captured - show preview once captured */}
-      {currentScreenshot && isCapturingScreenshot && (
-        <div className="flex justify-end mb-3 animate-slide-in">
-          <div className="relative max-w-md">
-            <img
-              src={`data:image/jpeg;base64,${currentScreenshot}`}
-              alt="Screenshot preview"
-              className="rounded-lg border border-border-subtle"
-            />
-          </div>
-        </div>
-      )}
 
       {/* Streaming message (if any) */}
       {isStreaming && streamingContent && (

@@ -98,7 +98,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                   key={idx}
                   src={`data:image/png;base64,${img}`}
                   alt={`Screenshot ${idx + 1}`}
-                  className="max-w-xs rounded border border-border-subtle"
+                  className="w-full max-w-sm h-auto rounded border border-border-subtle"
                 />
               ))}
             </div>

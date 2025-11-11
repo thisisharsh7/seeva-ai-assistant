@@ -1,10 +1,11 @@
-import { useState, useRef, KeyboardEvent } from 'react';
+import { useState, useRef, useEffect, KeyboardEvent } from 'react';
 import { useChatStore } from '../../stores/chatStore';
 import { useUIStore } from '../../stores/uiStore';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { screenshotAPI } from '../../lib/tauri-api';
 import { Button } from '../ui';
 import { Camera, Send, Settings } from 'lucide-react';
+import { ScreenshotPreview } from './ScreenshotPreview';
 
 export function InputBar() {
   const [input, setInput] = useState('');
@@ -13,8 +14,10 @@ export function InputBar() {
   const { sendMessage, isStreaming } = useChatStore();
   const {
     currentScreenshot,
+    screenshotCache,
     setScreenshot,
     clearScreenshot,
+    setCachedScreenshot,
     isSending,
     setIsSending,
     openSettings,
@@ -25,18 +28,32 @@ export function InputBar() {
   } = useUIStore();
   const { settings: appSettings } = useSettingsStore();
 
+  // Restore screenshot from cache when component mounts (after window reopen)
+  useEffect(() => {
+    if (!currentScreenshot && screenshotCache) {
+      console.log('🔄 [UI] Restoring screenshot from cache after window reopen');
+      setScreenshot(screenshotCache);
+    }
+  }, []); // Empty deps = run once on mount
+
   // Check if API key is configured
   const provider = appSettings.defaultProvider;
   const providerSettings = (appSettings as any)[provider];
   const hasApiKey = providerSettings?.apiKey && providerSettings.apiKey.trim() !== '';
 
   const handleScreenshot = async () => {
-    console.log('🎬 [UI] Camera button clicked - starting screenshot capture');
+    console.log('🎬 [UI] Camera button clicked');
 
     try {
-      console.log('⏳ [UI] Setting capturing state to true...');
-      setCapturingScreenshot(true);
+      // STEP 1: Show loading placeholder IMMEDIATELY (before API call)
+      // This is a 1x1 transparent PNG - super tiny, instant display
+      const loadingPlaceholder = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
+      console.log('⏳ [UI] Showing loading placeholder immediately');
+      setScreenshot(loadingPlaceholder);
+      setCapturingScreenshot(true); // This shows the loading overlay
+
+      // STEP 2: Now call API (user already sees preview area with spinner)
       console.log('📡 [UI] Calling Tauri screenshot API...');
       const startTime = performance.now();
       const screenshot = await screenshotAPI.capture();
@@ -46,13 +63,19 @@ export function InputBar() {
       console.log(`✅ [UI] Screenshot received from backend (took ${duration}ms)`);
       console.log(`📊 [UI] Screenshot base64 length: ${screenshot.length} characters`);
 
-      console.log('🖼️  [UI] Setting screenshot in state...');
+      // STEP 3: Update with real screenshot
+      console.log('🖼️  [UI] Updating with real screenshot...');
       setScreenshot(screenshot);
+      setCachedScreenshot(screenshot); // Store in cache for window reopens
 
-      console.log('✅ [UI] Screenshot capture complete - resetting states');
+      // STEP 4: Keep processing overlay for smooth transition
+      console.log('⏳ [UI] Showing processing state for smooth UX...');
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // STEP 5: Remove loading overlay
+      console.log('✅ [UI] Screenshot ready');
       setCapturingScreenshot(false);
-      // NOTE: Compression happens in backend (Rust), no need for fake UI state
-      // The backend already resizes, converts to JPEG, and encodes to base64
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       console.error(`❌ [UI] Screenshot capture failed: ${errorMessage}`);
@@ -61,6 +84,7 @@ export function InputBar() {
       console.log('🔄 [UI] Resetting screenshot states due to error');
       setCapturingScreenshot(false);
       setCompressingScreenshot(false);
+      clearScreenshot();
 
       // TODO: Add toast notification to inform user about the error
       // toast.error(`Screenshot failed: ${errorMessage}`);
@@ -73,9 +97,10 @@ export function InputBar() {
     const messageContent = input.trim();
     const images = currentScreenshot ? [currentScreenshot] : null;
 
-    // Clear input and screenshot immediately
+    // Clear input, screenshot AND cache immediately
     setInput('');
     clearScreenshot();
+    setCachedScreenshot(null); // Clear cache after send
     setIsSending(true);
 
     try {
@@ -137,6 +162,15 @@ export function InputBar() {
             </Button>
           </div>
         </div>
+      )}
+
+      {/* Screenshot Preview - Above Input Field */}
+      {currentScreenshot && (
+        <ScreenshotPreview
+          screenshot={currentScreenshot}
+          isProcessing={isCapturingScreenshot}
+          onRemove={clearScreenshot}
+        />
       )}
 
       {/* Input Bar - Full Width */}

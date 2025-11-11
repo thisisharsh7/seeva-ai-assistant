@@ -7,6 +7,7 @@ interface UIState {
 
   // Screenshot
   currentScreenshot: string | null; // Base64 encoded image
+  screenshotCache: string | null; // Persistent cache for window reopens
   isCapturingScreenshot: boolean;
   isCompressingScreenshot: boolean;
 
@@ -26,6 +27,7 @@ interface UIState {
 
   setScreenshot: (screenshot: string | null) => void;
   clearScreenshot: () => void;
+  setCachedScreenshot: (screenshot: string | null) => void;
   setCapturingScreenshot: (isCapturing: boolean) => void;
   setCompressingScreenshot: (isCompressing: boolean) => void;
 
@@ -39,6 +41,7 @@ export const useUIStore = create<UIState>((set) => ({
   isSettingsOpen: false,
   isScreenshotPreviewOpen: false,
   currentScreenshot: null,
+  screenshotCache: null,
   isCapturingScreenshot: false,
   isCompressingScreenshot: false,
   isSending: false,
@@ -57,6 +60,7 @@ export const useUIStore = create<UIState>((set) => ({
 
   setScreenshot: (screenshot) => set({ currentScreenshot: screenshot }),
   clearScreenshot: () => set({ currentScreenshot: null }),
+  setCachedScreenshot: (screenshot) => set({ screenshotCache: screenshot }),
   setCapturingScreenshot: (isCapturing) => set({ isCapturingScreenshot: isCapturing }),
   setCompressingScreenshot: (isCompressing) => set({ isCompressingScreenshot: isCompressing }),
 

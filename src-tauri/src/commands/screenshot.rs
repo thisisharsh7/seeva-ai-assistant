@@ -33,22 +33,22 @@ pub async fn capture_screenshot(
     tokio::time::sleep(tokio::time::Duration::from_millis(250)).await;
     println!("✅ [SCREENSHOT] Window hide delay complete");
 
-    // Capture screenshot
-    println!("📸 [SCREENSHOT] Calling screenshot service to capture primary screen...");
-    let result = screenshot_service.capture_primary_screen();
+    // Capture screenshot - this will take time (400-500ms for full processing)
+    println!("📸 [SCREENSHOT] Starting screenshot capture in background...");
 
-    match &result {
-        Ok(base64_data) => {
-            println!("✅ [SCREENSHOT] Screenshot captured successfully (base64 length: {} chars)", base64_data.len());
-        }
-        Err(e) => {
-            eprintln!("❌ [SCREENSHOT] Screenshot capture failed: {}", e);
-        }
-    }
+    // Clone Arc for async task
+    let service = Arc::clone(&screenshot_service.inner());
+    let window_clone = window.clone();
 
-    // CRITICAL: Always show window again, even if capture failed
-    // Use retry logic to ensure window is restored
-    println!("👁️  [SCREENSHOT] Attempting to restore window visibility...");
+    // Spawn capture task
+    let capture_handle = tokio::task::spawn_blocking(move || {
+        service.capture_primary_screen()
+    });
+
+    // CRITICAL: Show window IMMEDIATELY after starting capture
+    // Don't wait for capture to finish - restore window while processing happens
+    println!("👁️  [SCREENSHOT] Restoring window visibility while capture processes...");
+    tokio::time::sleep(tokio::time::Duration::from_millis(50)).await; // Small delay for capture to start
 
     let mut restore_success = false;
     let max_retries = 3;
@@ -58,7 +58,7 @@ pub async fn capture_screenshot(
 
         match window.show() {
             Ok(_) => {
-                println!("✅ [SCREENSHOT] Window restored successfully on attempt {}", attempt);
+                println!("✅ [SCREENSHOT] Window restored successfully on attempt {} (capture still processing)", attempt);
                 restore_success = true;
                 break;
             }
@@ -70,6 +70,8 @@ pub async fn capture_screenshot(
                     tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
                 } else {
                     eprintln!("❌ [SCREENSHOT] CRITICAL: All {} window restore attempts failed!", max_retries);
+                    // Try to cancel capture task
+                    capture_handle.abort();
                     return Err(format!(
                         "CRITICAL: Failed to restore window after screenshot. Last error: {}. Please manually show the window.",
                         e
@@ -80,7 +82,21 @@ pub async fn capture_screenshot(
     }
 
     if restore_success {
-        println!("🎉 [SCREENSHOT] Screenshot process complete - window restored");
+        println!("🎉 [SCREENSHOT] Window restored - waiting for capture to complete");
+    }
+
+    // Now wait for capture to finish
+    let result = capture_handle.await
+        .map_err(|e| format!("Screenshot task failed: {}", e))?;
+
+    // Log the result
+    match &result {
+        Ok(base64_data) => {
+            println!("✅ [SCREENSHOT] Screenshot captured successfully (base64 length: {} chars)", base64_data.len());
+        }
+        Err(e) => {
+            eprintln!("❌ [SCREENSHOT] Screenshot capture failed: {}", e);
+        }
     }
 
     // Return the screenshot result (or earlier error)
