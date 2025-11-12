@@ -16,7 +16,7 @@ export function ChatWindow() {
   };
 
   return (
-    <div className="w-full h-screen flex overflow-hidden relative" style={{ backgroundColor: 'transparent' }}>
+    <div className="w-full h-screen flex overflow-hidden relative bg-glass-dark">
       {/* Main Chat Area - Full width, no sidebar */}
       <div className="flex-1 flex flex-col glass-window min-w-[360px]">
         {/* Header Bar */}

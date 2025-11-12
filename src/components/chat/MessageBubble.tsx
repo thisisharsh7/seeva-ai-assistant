@@ -68,7 +68,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                       </SyntaxHighlighter>
                     </div>
                   ) : (
-                    <code className="bg-glass-darker px-1.5 py-0.5 rounded text-accent-blue text-[12.5px]" {...props}>
+                    <code className="bg-glass-darker px-1.5 py-0.5 rounded text-accent-blue text-[12.5px] inline-block max-w-full overflow-x-auto" {...props}>
                       {children}
                     </code>
                   );
