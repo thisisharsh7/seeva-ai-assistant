@@ -235,6 +235,7 @@ export function SettingsModal() {
             href="https://console.anthropic.com/settings/keys"
             target="_blank"
             rel="noopener noreferrer"
+    
             className="mt-2 inline-flex items-center gap-1 text-[12px] text-accent-blue hover:underline"
           >
             Get your API key
