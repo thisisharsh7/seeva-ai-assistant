@@ -5,6 +5,7 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Copy, Check } from 'lucide-react';
+import { openUrl } from '@tauri-apps/plugin-opener';
 
 interface MessageBubbleProps {
   message: Message;
@@ -31,6 +32,17 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       setTimeout(() => setCopied(false), 2500);
     } catch (error) {
       console.error('Failed to copy message:', error);
+    }
+  };
+
+  const handleLinkClick = async (e: React.MouseEvent<HTMLAnchorElement>, href?: string) => {
+    e.preventDefault();
+    if (href) {
+      try {
+        await openUrl(href);
+      } catch (error) {
+        console.error('Failed to open URL:', error);
+      }
     }
   };
 
@@ -76,9 +88,8 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                 a: ({ children, href }) => (
                   <a
                     href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-accent-blue hover:underline"
+                    onClick={(e) => handleLinkClick(e, href)}
+                    className="text-accent-blue hover:underline cursor-pointer"
                   >
                     {children}
                   </a>

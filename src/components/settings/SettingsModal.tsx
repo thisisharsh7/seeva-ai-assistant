@@ -5,6 +5,7 @@ import { useUIStore } from '../../stores/uiStore';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { Eye, EyeOff, ExternalLink } from 'lucide-react';
 import type { AppSettings } from '../../lib/tauri-api';
+import { openUrl } from '@tauri-apps/plugin-opener';
 
 const AVAILABLE_MODELS = [
   { value: 'claude-sonnet-4-5-20250929', label: 'Claude 4.5 Sonnet (Latest)' },
@@ -142,6 +143,14 @@ export function SettingsModal() {
     closeSettings();
   };
 
+  const handleOpenApiKeyUrl = async () => {
+    try {
+      await openUrl('https://console.anthropic.com/settings/keys');
+    } catch (error) {
+      console.error('Failed to open URL:', error);
+    }
+  };
+
   if (!localSettings || isLoading) {
     return null;
   }
@@ -231,16 +240,14 @@ export function SettingsModal() {
             </p>
           )}
 
-          <a
-            href="https://console.anthropic.com/settings/keys"
-            target="_blank"
-            rel="noopener noreferrer"
-    
+          <button
+            type="button"
+            onClick={handleOpenApiKeyUrl}
             className="mt-2 inline-flex items-center gap-1 text-[12px] text-accent-blue hover:underline"
           >
             Get your API key
             <ExternalLink size={12} />
-          </a>
+          </button>
         </div>
 
         {/* Footer Actions */}
