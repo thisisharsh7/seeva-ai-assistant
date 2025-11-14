@@ -14,6 +14,12 @@
     "core:window:allow-set-position",
     "core:window:allow-set-size",
     "core:window:allow-hide",
-    "core:window:allow-show"
+    "core:window:allow-show",
+    "updater:default",
+    "updater:allow-check",
+    "updater:allow-download",
+    "updater:allow-install",
+    "process:default",
+    "process:allow-restart"
   ]
 }

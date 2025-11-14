@@ -13,6 +13,7 @@ export function UpdateChecker({ className = '' }: UpdateCheckerProps) {
   const [isInstalling, setIsInstalling] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [showUpToDate, setShowUpToDate] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const upToDateTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const isManualCheckRef = useRef(false);
@@ -34,6 +35,7 @@ export function UpdateChecker({ className = '' }: UpdateCheckerProps) {
 
     try {
       setIsChecking(true);
+      setError(null);
       const update = await check();
 
       if (update) {
@@ -54,6 +56,13 @@ export function UpdateChecker({ className = '' }: UpdateCheckerProps) {
       }
     } catch (error) {
       console.error('Failed to check for updates:', error);
+      setError('Failed to check for updates');
+      if (upToDateTimeoutRef.current) {
+        clearTimeout(upToDateTimeoutRef.current);
+      }
+      upToDateTimeoutRef.current = setTimeout(() => {
+        setError(null);
+      }, 5000);
     } finally {
       setIsChecking(false);
       isManualCheckRef.current = false;
@@ -69,6 +78,7 @@ export function UpdateChecker({ className = '' }: UpdateCheckerProps) {
     try {
       setIsInstalling(true);
       setDownloadProgress(0);
+      setError(null);
       downloadedBytesRef.current = 0;
       contentLengthRef.current = 0;
       const update = await check();
@@ -98,6 +108,10 @@ export function UpdateChecker({ className = '' }: UpdateCheckerProps) {
       await relaunch();
     } catch (error) {
       console.error('Failed to install update:', error);
+      setError('Failed to install update');
+      setTimeout(() => {
+        setError(null);
+      }, 5000);
     } finally {
       setIsInstalling(false);
       setDownloadProgress(0);
@@ -107,6 +121,7 @@ export function UpdateChecker({ className = '' }: UpdateCheckerProps) {
   };
 
   const getUpdateStatusText = () => {
+    if (error) return error;
     if (isInstalling) {
       return downloadProgress > 0 && downloadProgress < 100
         ? `Downloading ${downloadProgress}%`
@@ -129,7 +144,7 @@ export function UpdateChecker({ className = '' }: UpdateCheckerProps) {
 
   const isUpdateDisabled = isChecking || isInstalling;
   const isUpdateClickable =
-    !isUpdateDisabled && (updateAvailable || (!isChecking && !showUpToDate));
+    !isUpdateDisabled && (updateAvailable || (!isChecking && !showUpToDate && !error));
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
@@ -150,7 +165,7 @@ export function UpdateChecker({ className = '' }: UpdateCheckerProps) {
           {getUpdateStatusText()}
         </button>
       ) : (
-        <span className="text-xs text-tertiary">
+        <span className={`text-xs ${error ? 'text-red-400' : 'text-tertiary'}`}>
           {getUpdateStatusText()}
         </span>
       )}
