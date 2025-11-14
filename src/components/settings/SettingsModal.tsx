@@ -8,6 +8,7 @@ import { Eye, EyeOff, ExternalLink, Loader2 } from 'lucide-react';
 import type { AppSettings, ProviderSettings } from '../../lib/tauri-api';
 import { settingsAPI } from '../../lib/tauri-api';
 import { openUrl } from '@tauri-apps/plugin-opener';
+import { APP_VERSION } from '../../lib/constants';
 
 const PROVIDER_MODELS = {
   anthropic: [
@@ -230,7 +231,7 @@ export function SettingsModal() {
             name="provider"
             checked={isActive}
             onChange={() => handleProviderSelect(provider)}
-            className="w-4 h-4 text-accent-blue focus:ring-2 focus:ring-accent-blue"
+            className="w-4.5 h-4 text-accent-blue focus:ring-2 focus:ring-accent-blue"
           />
           <span className="text-sm font-semibold text-primary group-hover:text-accent-blue transition-colors">
             Use this provider
@@ -376,8 +377,9 @@ export function SettingsModal() {
           {renderProviderSection(selectedProvider)}
         </div>
 
-        {/* Footer with Update Checker */}
-        <div className="pt-4 border-t border-border-subtle">
+        {/* Footer with Update Checker and Version */}
+        <div className="pt-4 border-t border-border-subtle flex items-center justify-between">
+          <span className="text-xs text-tertiary">v{APP_VERSION}</span>
           <UpdateChecker />
         </div>
       </div>

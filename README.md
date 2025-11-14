@@ -2,7 +2,7 @@
 
 AI assistant that appears anywhere, sees your screen.
 
-![Version](https://img.shields.io/badge/version-0.1.2-blue.svg)
+![Version](https://img.shields.io/badge/version-0.1.5-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg)
 
 discord username  - thisisharsh7
@@ -36,7 +36,7 @@ I was switching to AI tools 50+ times per day while coding. The constant context
 
 ### Download Pre-built App
 
-Download the latest version (v0.1.2) for your platform from the [Releases](https://github.com/thisisharsh7/seeva-ai-assistant/releases) page:
+Download the latest version (v0.1.5) for your platform from the [Releases](https://github.com/thisisharsh7/seeva-ai-assistant/releases) page:
 
 #### macOS
 - **Apple Silicon (M1/M2/M3/M4)**: Download the `darwin_aarch64.app.tar.gz` file
@@ -56,7 +56,7 @@ Download the latest version (v0.1.2) for your platform from the [Releases](https
 
 ### Auto-Updates
 
-Starting from v0.1.2, Seeva AI Assistant includes automatic update checking. When a new version is available:
+Starting from v0.1.4, Seeva AI Assistant includes automatic update checking. When a new version is available:
 1. Open Settings (click the gear icon)
 2. Click "Update available" in the footer
 3. The update will download and install automatically
