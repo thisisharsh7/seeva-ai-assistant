@@ -44,7 +44,7 @@ impl Default for AppSettings {
             openai: ProviderSettings {
                 enabled: false,
                 api_key: String::new(),
-                default_model: "gpt-4o".to_string(),
+                default_model: "gpt-5-mini".to_string(),
                 temperature: 0.7,
                 max_tokens: 4096,
                 is_validated: false,
@@ -167,7 +167,7 @@ pub async fn validate_api_key(
 
             if is_valid {
                 let models = openai.available_models();
-                let default_model = models.first().unwrap_or(&"gpt-4o".to_string()).clone();
+                let default_model = models.first().unwrap_or(&"gpt-5-mini".to_string()).clone();
 
                 Ok(ValidationResult {
                     valid: true,
