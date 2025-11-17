@@ -369,11 +369,13 @@ impl AIProvider for OpenRouterProvider {
             "anthropic/claude-3.5-haiku".to_string(),
             "anthropic/claude-opus-4".to_string(),
             // OpenAI Models
+            "openai/gpt-5.1".to_string(), // Vision-capable
             "openai/gpt-4o".to_string(),
             "openai/gpt-4o-mini".to_string(),
             "openai/gpt-4-turbo".to_string(),
             "openai/chatgpt-4o-latest".to_string(),
-            // Google Models
+            // Google Models (Vision-capable)
+            "google/gemini-2.5-flash-lite-preview-09-2025".to_string(), // Vision-capable
             "google/gemini-2.0-flash-exp".to_string(),
             "google/gemini-2.0-flash-thinking-exp:free".to_string(),
             "google/gemini-pro-1.5".to_string(),
@@ -388,8 +390,11 @@ impl AIProvider for OpenRouterProvider {
             // Mistral Models
             "mistralai/mistral-large".to_string(),
             "mistralai/mistral-small".to_string(),
-            // Qwen Models
+            // Qwen Models (Vision-capable)
+            "qwen/qwen3-vl-235b-a22b-thinking".to_string(), // Vision-capable
             "qwen/qwen-2.5-72b-instruct".to_string(),
+            // NVIDIA Models (Vision-capable)
+            "nvidia/nemotron-nano-12b-v2-vl:free".to_string(), // Vision-capable
             // Others
             "x-ai/grok-2-vision-1212".to_string(),
             "perplexity/llama-3.1-sonar-huge-128k-online".to_string(),

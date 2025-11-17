@@ -21,10 +21,11 @@ pub struct OpenAIProvider {
 struct OpenAIRequest {
     model: String,
     messages: Vec<OpenAIMessage>,
+    // Temperature is not supported by GPT-5 models - only default value of 1 is used
+    // #[serde(skip_serializing_if = "Option::is_none")]
+    // temperature: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    temperature: Option<f32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    max_tokens: Option<u32>,
+    max_completion_tokens: Option<u32>,
     stream: bool,
 }
 
@@ -222,8 +223,7 @@ impl AIProvider for OpenAIProvider {
         let openai_request = OpenAIRequest {
             model: request.model.clone(),
             messages,
-            temperature: request.temperature,
-            max_tokens: request.max_tokens,
+            max_completion_tokens: request.max_tokens,
             stream: false,
         };
 
@@ -263,29 +263,37 @@ impl AIProvider for OpenAIProvider {
         let openai_request = OpenAIRequest {
             model: request.model.clone(),
             messages,
-            temperature: request.temperature,
-            max_tokens: request.max_tokens,
+            max_completion_tokens: request.max_tokens,
             stream: true,
         };
 
         let response = self.send_request(openai_request).await?;
 
-        let stream = response.bytes_stream().filter_map(move |chunk_result| {
-            async move {
-                match chunk_result {
+        // Use scan to maintain a buffer across chunks
+        let stream = response
+            .bytes_stream()
+            .scan(String::new(), |buffer, chunk_result| {
+                let result = match chunk_result {
                     Ok(bytes) => {
-                        let text = String::from_utf8_lossy(&bytes);
+                        // Append new data to buffer
+                        buffer.push_str(&String::from_utf8_lossy(&bytes));
 
-                        // Parse SSE format: "data: {...}\n\n"
-                        for line in text.lines() {
+                        let mut events = Vec::new();
+
+                        // Process complete lines (ending with \n)
+                        while let Some(newline_pos) = buffer.find('\n') {
+                            let line = buffer[..newline_pos].trim().to_string();
+                            buffer.drain(..=newline_pos);
+
                             // Skip empty lines
-                            if line.trim().is_empty() {
+                            if line.is_empty() {
                                 continue;
                             }
 
                             // Check for stream end
                             if line.contains("data: [DONE]") {
-                                return Some(Ok(StreamEvent::MessageStop { usage: None }));
+                                events.push(Ok(StreamEvent::MessageStop { usage: None }));
+                                continue;
                             }
 
                             if let Some(json_str) = line.strip_prefix("data: ") {
@@ -295,15 +303,16 @@ impl AIProvider for OpenAIProvider {
                                     if let Some(choice) = stream_response.choices.first() {
                                         // Check for finish
                                         if choice.finish_reason.is_some() {
-                                            return Some(Ok(StreamEvent::MessageStop {
+                                            events.push(Ok(StreamEvent::MessageStop {
                                                 usage: None,
                                             }));
+                                            continue;
                                         }
 
                                         // Check for content delta
                                         if let Some(content) = &choice.delta.content {
                                             if !content.is_empty() {
-                                                return Some(Ok(StreamEvent::ContentDelta {
+                                                events.push(Ok(StreamEvent::ContentDelta {
                                                     delta: content.clone(),
                                                 }));
                                             }
@@ -311,33 +320,33 @@ impl AIProvider for OpenAIProvider {
 
                                         // Check for role (start of message)
                                         if choice.delta.role.is_some() {
-                                            return Some(Ok(StreamEvent::MessageStart));
+                                            events.push(Ok(StreamEvent::MessageStart));
                                         }
                                     }
                                 }
                             }
                         }
 
-                        // If we didn't find any useful event, skip this chunk
-                        None
+                        Some(events)
                     }
-                    Err(e) => Some(Err(AIError::RequestError(e))),
-                }
-            }
-        });
+                    Err(e) => Some(vec![Err(AIError::RequestError(e))]),
+                };
+
+                futures::future::ready(result)
+            })
+            .flat_map(futures::stream::iter);
 
         Ok(Box::pin(stream))
     }
 
     async fn validate_api_key(&self, api_key: &str) -> Result<bool, AIError> {
         let test_request = OpenAIRequest {
-            model: "gpt-4o-mini".to_string(),
+            model: "gpt-5-nano".to_string(),
             messages: vec![OpenAIMessage {
                 role: "user".to_string(),
                 content: OpenAIContent::Text("Hi".to_string()),
             }],
-            temperature: None,
-            max_tokens: Some(5),
+            max_completion_tokens: Some(5),
             stream: false,
         };
 
@@ -355,11 +364,8 @@ impl AIProvider for OpenAIProvider {
 
     fn available_models(&self) -> Vec<String> {
         vec![
-            "gpt-4o".to_string(),
-            "gpt-4o-mini".to_string(),
-            "gpt-4-turbo".to_string(),
-            "gpt-4".to_string(),
-            "gpt-3.5-turbo".to_string(),
+            "gpt-5-mini".to_string(),
+            "gpt-5-nano".to_string(),
         ]
     }
 }
@@ -414,7 +420,7 @@ mod tests {
     fn test_available_models() {
         let provider = OpenAIProvider::new("test-key".to_string());
         let models = provider.available_models();
-        assert!(models.contains(&"gpt-4o".to_string()));
+        assert!(models.contains(&"gpt-5-mini".to_string()));
         assert!(models.len() > 0);
     }
 }

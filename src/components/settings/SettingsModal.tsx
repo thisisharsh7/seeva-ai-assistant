@@ -19,21 +19,21 @@ const PROVIDER_MODELS = {
     { value: 'claude-3-7-sonnet-20250219', label: 'Claude 3.7 Sonnet' },
   ],
   openai: [
-    { value: 'gpt-4o', label: 'GPT-4o (Latest)' },
-    { value: 'gpt-4o-mini', label: 'GPT-4o Mini (Fast & Affordable)' },
-    { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
-    { value: 'gpt-4', label: 'GPT-4' },
+    { value: 'gpt-5-mini', label: 'GPT-5 Mini' },
+    { value: 'gpt-5-nano', label: 'GPT-5 Nano' },
   ],
   openrouter: [
+    // Vision-capable models
+    { value: 'openai/gpt-5.1', label: 'GPT-5.1 (Vision)' },
+    { value: 'nvidia/nemotron-nano-12b-v2-vl:free', label: 'NVIDIA Nemotron Nano 12B Vision (Free)' },
+    { value: 'google/gemini-2.5-flash-lite-preview-09-2025', label: 'Gemini 2.5 Flash Lite Preview (Vision)' },
+    { value: 'qwen/qwen3-vl-235b-a22b-thinking', label: 'Qwen 3 VL 235B Thinking (Vision)' },
+    // Additional popular models
     { value: 'anthropic/claude-sonnet-4', label: 'Claude Sonnet 4' },
     { value: 'anthropic/claude-3.7-sonnet', label: 'Claude 3.7 Sonnet' },
-    { value: 'anthropic/claude-3.5-sonnet', label: 'Claude 3.5 Sonnet' },
-    { value: 'anthropic/claude-3.5-haiku', label: 'Claude 3.5 Haiku' },
+    { value: 'google/gemini-2.0-flash-exp', label: 'Gemini 2.0 Flash Exp' },
     { value: 'openai/gpt-4o', label: 'GPT-4o' },
-    { value: 'openai/gpt-4o-mini', label: 'GPT-4o Mini' },
-    { value: 'google/gemini-2.0-flash-exp', label: 'Gemini 2.0 Flash' },
-    { value: 'google/gemini-pro-1.5', label: 'Gemini Pro 1.5' },
-    { value: 'mistralai/pixtral-large-latest', label: 'Pixtral Large (Vision)' },
+    { value: 'meta-llama/llama-3.2-90b-vision-instruct', label: 'Llama 3.2 90B Vision' },
     { value: 'x-ai/grok-2-vision-1212', label: 'Grok 2 Vision' },
   ],
 };
