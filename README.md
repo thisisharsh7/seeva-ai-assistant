@@ -2,7 +2,7 @@
 
 AI assistant that appears anywhere, sees your screen.
 
-![Version](https://img.shields.io/badge/version-0.1.5-blue.svg)
+![Version](https://img.shields.io/badge/version-0.1.7-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg)
 
 discord username  - thisisharsh7
@@ -14,7 +14,7 @@ Seeva is a universal AI assistant that appears instantly with a single keystroke
 
 The problem it solves: When you need AI help today, you have to stop what you are doing, open a browser or app, navigate to ChatGPT or Claude, describe what you are looking at, wait for a response, then switch back to your work. This context switching takes 10-15 seconds per interaction and breaks your flow state dozens of times a day.
 
-Seeva works differently. Press the hotkey from anywhere, the floating window appears, click "Watch Screen", and it captures your screen and analyzes it with Claude's vision API. Ask questions about what you are seeing and get instant answers without leaving your work.
+Seeva works differently. Press the hotkey from anywhere, the floating window appears, click "Watch Screen", and it captures your screen and analyzes it with AI vision. Ask questions about what you are seeing and get instant answers without leaving your work.
 
 ## Why I Built This
 
@@ -22,11 +22,11 @@ I was switching to AI tools 50+ times per day while coding. The constant context
 
 ## Key Features
 
-- **Instant Access**: Press Cmd+Shift+C from anywhere to show or hide the window
-- **Screen Vision**: Click "Watch Screen" and AI sees your screen automatically using Claude's vision API
+- **Instant Access**: Press Ctrl+Shift+Space from anywhere to show or hide the window
+- **Screen Vision**: Click "Watch Screen" and AI sees your screen automatically
 - **Works Everywhere**: Use it in any application, not just code editors or browsers
 - **Multi-Thread Conversations**: Organize different topics into separate conversation threads
-- **Multiple AI Providers**: Support for Anthropic Claude, OpenAI GPT, OpenRouter (100+ models), Google Gemini, and Ollama local models
+- **Multiple AI Providers**: Support for Anthropic Claude, OpenAI GPT, OpenRouter (100+ models)
 - **Always On Top**: Floating window that never gets lost behind other apps
 - **Local Storage**: All conversations and settings stored on your device using SQLite
 - **Privacy First**: Your data stays on your machine except when calling your chosen AI provider
@@ -36,7 +36,7 @@ I was switching to AI tools 50+ times per day while coding. The constant context
 
 ### Download Pre-built App
 
-Download the latest version (v0.1.5) for your platform from the [Releases](https://github.com/thisisharsh7/seeva-ai-assistant/releases) page:
+Download the latest version (v0.1.7) for your platform from the [Releases](https://github.com/thisisharsh7/seeva-ai-assistant/releases) page:
 
 #### macOS
 - **Apple Silicon (M1/M2/M3/M4)**: Download the `darwin_aarch64.app.tar.gz` file
@@ -109,11 +109,8 @@ To create a signed release (requires setup of signing keys):
    - **Anthropic Claude**: Get your API key from [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys)
    - **OpenAI GPT**: Get your API key from [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
    - **OpenRouter**: Get your API key from [openrouter.ai/keys](https://openrouter.ai/keys) (gives access to 100+ models from multiple providers)
-3. Grant system permissions when prompted:
-   - **macOS**: Screen Recording and Accessibility permissions
-   - **Windows**: Screen capture access
-   - **Linux**: Screen capture permissions (varies by distro)
-4. Press `Cmd+Shift+C` (macOS) or `Ctrl+Shift+C` (Windows/Linux) to toggle the window from anywhere
+3. Grant screen capture permissions when prompted
+4. Press `Ctrl+Shift+Space` to toggle the window from anywhere
 5. Click "Watch Screen" to capture and analyze your screen
 6. Ask questions about what you are seeing
 7. Press the hotkey again to hide the window and return to work
@@ -141,7 +138,7 @@ src-tauri/    - Rust backend
 
 ## Keyboard Shortcuts
 
-- `Cmd+Shift+C` (macOS) / `Ctrl+Shift+C` (Windows/Linux) - Toggle window visibility from anywhere
+- `Ctrl+Shift+Space` - Toggle window visibility from anywhere (customizable)
 - `Cmd+N` (macOS) / `Ctrl+N` (Windows/Linux) - Create new conversation thread
 - `Ctrl+Enter` - Send message
 - `Escape` - Hide window

@@ -1,11 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { useChatStore } from '../../stores/chatStore';
+import { useUIStore } from '../../stores/uiStore';
 import { MessageBubble } from './MessageBubble';
+import { ScreenshotPreview } from './ScreenshotPreview';
 import { Spinner } from '../ui';
 import { MessageSquare } from 'lucide-react';
 
 export function MessageList() {
   const { currentThreadId, isStreaming, streamingContent, getThreadMessages } = useChatStore();
+  const { currentScreenshot, isCapturingScreenshot, clearScreenshot } = useUIStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -43,37 +46,56 @@ export function MessageList() {
   }
 
   return (
-    <div
-      ref={containerRef}
-      className="flex-1 overflow-y-auto overflow-x-hidden px-2 sm:px-4 py-6 pb-6 space-y-3"
-    >
-      {/* Existing messages */}
-      {currentMessages.map((message) => (
-        <MessageBubble key={message.id} message={message} />
-      ))}
+    <div className="flex-1 relative overflow-hidden">
+      <div
+        ref={containerRef}
+        className="h-full overflow-y-auto overflow-x-hidden px-2 sm:px-4 py-6 space-y-3 backdrop-blur-sm"
+        style={{
+          backdropFilter: 'blur(8px)',
+          paddingBottom: currentScreenshot ? '180px' : '24px' // Add padding when screenshot is shown
+        }}
+      >
+        {/* Existing messages */}
+        {currentMessages.map((message) => (
+          <MessageBubble key={message.id} message={message} />
+        ))}
 
-      {/* Streaming message (if any) */}
-      {isStreaming && streamingContent && (
-        <div className="flex justify-start mb-3 animate-slide-in">
-          <div className="flex flex-col max-w-[90%] sm:max-w-[85%] md:max-w-[75%] min-w-[250px]">
-            <div className="text-[11px] text-tertiary font-medium mb-1 ml-1">
-              Seeva
-            </div>
-            <div className="message-assistant px-3 py-2.5">
-              <div className="prose prose-sm prose-invert max-w-none text-[13.5px]">
-                <p className="my-0 leading-[1.6]">{streamingContent}</p>
+        {/* Streaming message (if any) */}
+        {isStreaming && streamingContent && (
+          <div className="flex justify-start mb-3 animate-slide-in">
+            <div className="flex flex-col max-w-[90%] sm:max-w-[85%] md:max-w-[75%] min-w-[250px]">
+              <div className="text-[11px] text-tertiary font-medium mb-1 ml-1">
+                Seeva
+              </div>
+              <div className="message-assistant px-3 py-2.5">
+                <div className="prose prose-sm prose-invert max-w-none text-[13.5px]">
+                  <p className="my-0 leading-[1.6]">{streamingContent}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 mt-1 px-1 text-[11px] text-tertiary">
+                <Spinner size="sm" className="text-accent-blue" />
+                <span>Generating...</span>
               </div>
             </div>
-            <div className="flex items-center gap-2 mt-1 px-1 text-[11px] text-tertiary">
-              <Spinner size="sm" className="text-accent-blue" />
-              <span>Generating...</span>
-            </div>
+          </div>
+        )}
+
+        {/* Auto-scroll anchor */}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Floating Screenshot Section */}
+      {currentScreenshot && (
+        <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
+          <div className="pointer-events-auto">
+            <ScreenshotPreview
+              screenshot={currentScreenshot}
+              isProcessing={isCapturingScreenshot}
+              onRemove={clearScreenshot}
+            />
           </div>
         </div>
       )}
-
-      {/* Auto-scroll anchor */}
-      <div ref={messagesEndRef} />
     </div>
   );
 }

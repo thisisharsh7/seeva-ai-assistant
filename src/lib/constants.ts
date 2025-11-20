@@ -44,7 +44,7 @@ export const DEFAULT_SETTINGS: Settings = {
     },
   },
   shortcuts: {
-    toggleWindow: 'CommandOrControl+Shift+C',
+    toggleWindow: 'Control+Shift+Space',
     screenshot: 'CommandOrControl+Shift+S',
     newThread: 'CommandOrControl+N',
   },
@@ -252,7 +252,7 @@ export const ERROR_CODES = {
 
 // Keyboard shortcuts help text
 export const SHORTCUT_DESCRIPTIONS = {
-  'CommandOrControl+Shift+C': 'Toggle window visibility',
+  'Control+Shift+Space': 'Toggle window visibility',
   'CommandOrControl+Shift+S': 'Capture screenshot',
   'CommandOrControl+N': 'Create new thread',
   'Control+Enter': 'Send message',

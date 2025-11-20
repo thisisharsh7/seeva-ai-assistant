@@ -10,7 +10,7 @@
     "frontendDist": "../dist"
   },
   "app": {
-    "macOSPrivateApi": false,
+    "macOSPrivateApi": true,
     "windows": [
       {
         "title": "Seeva AI Assistant",
@@ -29,7 +29,8 @@
         "alwaysOnTop": true,
         "visible": true,
         "skipTaskbar": false,
-        "theme": "Dark"
+        "theme": "Dark",
+        "titleBarStyle": "Overlay"
       }
     ],
     "security": {
@@ -48,7 +49,9 @@
       "icons/icon.ico"
     ],
     "macOS": {
-      "minimumSystemVersion": "10.13"
+      "minimumSystemVersion": "10.13",
+      "entitlements": "./Entitlements.plist",
+      "hardenedRuntime": true
     }
   },
   "plugins": {

@@ -74,7 +74,7 @@ impl Default for AppSettings {
                 is_validated: false,
             },
             theme: "dark".to_string(),
-            shortcut: "CommandOrControl+Shift+Space".to_string(),
+            shortcut: "Control+Shift+Space".to_string(),
         }
     }
 }

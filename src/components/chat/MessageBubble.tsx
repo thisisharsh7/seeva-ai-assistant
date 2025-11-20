@@ -89,7 +89,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                   <a
                     href={href}
                     onClick={(e) => handleLinkClick(e, href)}
-                    className="text-accent-blue hover:underline cursor-pointer"
+                    className="text-accent-blue hover:underline cursor-pointer break-words"
                   >
                     {children}
                   </a>

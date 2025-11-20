@@ -5,7 +5,6 @@ import { useSettingsStore } from '../../stores/settingsStore';
 import { screenshotAPI } from '../../lib/tauri-api';
 import { Button } from '../ui';
 import { Camera, Send, Settings, Loader2, Plus } from 'lucide-react';
-import { ScreenshotPreview } from './ScreenshotPreview';
 
 export function InputBar() {
   const [input, setInput] = useState('');
@@ -135,7 +134,7 @@ export function InputBar() {
   };
 
   return (
-    <div className="flex-shrink-0">
+    <div className="flex-shrink-0 !bg-transparent">
       {/* API Key Warning */}
       {!hasApiKey && (
         <div className="px-2 sm:px-4 pb-2">
@@ -176,17 +175,8 @@ export function InputBar() {
         </div>
       )}
 
-      {/* Screenshot Preview - Above Input Field */}
-      {currentScreenshot && (
-        <ScreenshotPreview
-          screenshot={currentScreenshot}
-          isProcessing={isCapturingScreenshot}
-          onRemove={clearScreenshot}
-        />
-      )}
-
       {/* Input Bar - Full Width */}
-      <div className="border-t border-border-subtle glass-card backdrop-blur-sm">
+      <div className="border-t border-border-subtle glass-card" style={{ backdropFilter: 'blur(30px) saturate(180%)' }}>
         <div className="flex items-start gap-2 px-2 sm:px-4 py-3 min-w-0">
           {/* Text Input */}
           <textarea

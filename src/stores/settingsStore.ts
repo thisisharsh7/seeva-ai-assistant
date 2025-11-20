@@ -60,7 +60,7 @@ const defaultSettings: AppSettings = {
     isValidated: false,
   },
   theme: 'dark',
-  shortcut: 'CommandOrControl+Shift+Space',
+  shortcut: 'Control+Shift+Space',
 };
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({

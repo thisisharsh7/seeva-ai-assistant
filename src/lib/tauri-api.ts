@@ -42,7 +42,8 @@ export const chatAPI = {
     provider: AIProvider,
     apiKey: string,
     model: string,
-    maxTokens?: number
+    maxTokens?: number,
+    includeContext?: boolean
   ): Promise<Message> => {
     return await invoke('send_message', {
       threadId,
@@ -52,6 +53,7 @@ export const chatAPI = {
       apiKey,
       model,
       maxTokens,
+      includeContext,
     });
   },
 

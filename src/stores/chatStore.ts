@@ -335,7 +335,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
         provider as any,
         providerSettings.apiKey,
         providerSettings.defaultModel,
-        providerSettings.maxTokens
+        providerSettings.maxTokens,
+        true // includeContext - enables context detection
       );
 
       // Add assistant message

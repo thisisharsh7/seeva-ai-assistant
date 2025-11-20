@@ -91,7 +91,7 @@ export function SettingsModal() {
       // Select the default provider tab
       setSelectedProvider((storeSettings.defaultProvider as ProviderKey) || 'anthropic');
     }
-  }, [isSettingsOpen, storeSettings]);
+  }, [isSettingsOpen]);
 
   // Auto-save helper
   const autoSave = async (updates: Partial<AppSettings>) => {
@@ -341,11 +341,26 @@ export function SettingsModal() {
           </p>
         </div>
 
+        {/* Context Detection Section - Coming Soon */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between py-2 px-3 rounded-lg border border-border-subtle bg-surface-secondary/30 opacity-60">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-primary">Context Detection</span>
+              <span className="text-xs px-2 py-0.5 bg-accent-blue/20 text-accent-blue rounded-full font-medium">
+                Soon
+              </span>
+            </div>
+            <button
+              disabled
+              className="relative inline-flex h-6 w-11 items-center rounded-full bg-accent-blue/10 cursor-not-allowed"
+            >
+              <span className="inline-block h-4 w-4 transform rounded-full bg-white/50 shadow-sm translate-x-1" />
+            </button>
+          </div>
+        </div>
+
         {/* AI Providers Section */}
         <div className="space-y-4">
-          <h2 className="text-sm font-semibold text-primary border-b border-border-subtle pb-2">
-            AI Provider
-          </h2>
 
           {/* Provider Tabs */}
           <div className="flex gap-2 border-b border-border-subtle">

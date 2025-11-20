@@ -47,3 +47,6 @@ dist-ssr
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Claude Code settings
+.claude/

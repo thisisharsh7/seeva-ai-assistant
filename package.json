@@ -1,7 +1,7 @@
 {
   "name": "seeva-ai-assistant",
   "private": true,
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Cross-platform AI assistant with screenshot capabilities",
   "type": "module",
   "scripts": {
@@ -11,6 +11,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@anthropic-ai/claude-code": "^2.0.47",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-autostart": "^2.5.1",
     "@tauri-apps/plugin-clipboard-manager": "^2.3.2",

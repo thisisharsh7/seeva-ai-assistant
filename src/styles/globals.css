@@ -111,17 +111,30 @@
 @layer components {
   /* Glassmorphism utilities - Dark theme */
   .glass-window {
-    background-color: rgb(15 15 25 / 0.85);
-    backdrop-filter: blur(20px);
+    background-color: rgb(15 15 25 / 0.70);
+    backdrop-filter: blur(40px);
     border: 1px solid rgb(255 255 255 / 0.15);
     box-shadow: 0 8px 32px rgb(0 0 0 / 0.4);
     border-radius: 0.5rem;
     transition: margin 200ms ease-out, flex 200ms ease-out;
   }
 
+  /* Enhanced backdrop filter for better transparency on macOS */
+  @supports (-webkit-backdrop-filter: blur(40px)) or (backdrop-filter: blur(40px)) {
+    .glass-window {
+      -webkit-backdrop-filter: blur(40px) saturate(200%);
+      backdrop-filter: blur(40px) saturate(200%);
+    }
+
+    .glass-card {
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      backdrop-filter: blur(20px) saturate(180%);
+    }
+  }
+
   .glass-card {
-    background-color: rgb(30 30 45 / 0.75);
-    backdrop-filter: blur(10px);
+    background-color: rgb(30 30 45 / 0.60);
+    backdrop-filter: blur(20px);
     border: 1px solid rgb(255 255 255 / 0.15);
     box-shadow: 0 4px 16px rgb(0 0 0 / 0.3);
     border-radius: 0.375rem;
@@ -139,7 +152,8 @@
   }
 
   .glass-input {
-    background-color: rgb(10 10 20 / 0.9);
+    background-color: rgb(10 10 20 / 0.75);
+    backdrop-filter: blur(10px);
     border: 1px solid rgb(255 255 255 / 0.15);
     border-radius: 0.375rem;
     transition: border-color 0.2s;
@@ -152,15 +166,15 @@
 
   /* Glassmorphism utilities - Light theme */
   [data-theme="light"] .glass-window {
-    background-color: rgb(255 255 255 / 0.95);
-    backdrop-filter: blur(20px);
+    background-color: rgb(255 255 255 / 0.85);
+    backdrop-filter: blur(40px);
     border: 1px solid rgb(0 0 0 / 0.15);
     box-shadow: 0 8px 32px rgb(0 0 0 / 0.24);
   }
 
   [data-theme="light"] .glass-card {
-    background-color: rgb(242 242 247 / 0.9);
-    backdrop-filter: blur(10px);
+    background-color: rgb(242 242 247 / 0.75);
+    backdrop-filter: blur(20px);
     border: 1px solid rgb(0 0 0 / 0.15);
     box-shadow: 0 4px 16px rgb(0 0 0 / 0.18);
   }
@@ -315,6 +329,10 @@
 
   [data-theme="light"] .bg-glass-light\/50 {
     background-color: rgb(242 242 247 / 0.5);
+  }
+
+  [data-theme="light"] .bg-glass-darker {
+    background-color: rgb(230 230 240 / 0.85);
   }
 
   /* Light mode border overrides */
