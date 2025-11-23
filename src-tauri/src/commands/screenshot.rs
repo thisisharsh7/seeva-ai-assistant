@@ -38,7 +38,6 @@ pub async fn capture_screenshot(
 
     // Clone Arc for async task
     let service = Arc::clone(&screenshot_service.inner());
-    let window_clone = window.clone();
 
     // Spawn capture task
     let capture_handle = tokio::task::spawn_blocking(move || {

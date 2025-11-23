@@ -1,12 +1,10 @@
 use async_trait::async_trait;
-use futures::{Stream, StreamExt};
+use futures::StreamExt;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
-use std::pin::Pin;
 
 use super::provider::{
-    AIError, AIProvider, ChatMessage, ChatRequest, ChatResponse, StreamEvent, StreamResult,
-    TokenUsage,
+    AIError, AIProvider, ChatMessage, ChatRequest, StreamEvent, StreamResult, TokenUsage,
 };
 
 const ANTHROPIC_API_URL: &str = "https://api.anthropic.com/v1/messages";
@@ -59,6 +57,7 @@ struct ImageSource {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct AnthropicResponse {
     id: String,
     model: String,
@@ -74,6 +73,7 @@ struct AnthropicUsage {
 
 #[derive(Debug, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
+#[allow(dead_code)]
 enum AnthropicStreamEvent {
     MessageStart {
         message: MessageStartData,
@@ -101,6 +101,7 @@ enum AnthropicStreamEvent {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct MessageStartData {
     id: String,
     model: String,
@@ -114,11 +115,13 @@ enum ContentDelta {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct MessageDeltaData {
     stop_reason: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct ErrorData {
     #[serde(rename = "type")]
     error_type: String,
@@ -167,16 +170,6 @@ impl AnthropicProvider {
             .collect()
     }
 
-    fn extract_text_from_response(&self, content: Vec<ContentBlock>) -> String {
-        content
-            .into_iter()
-            .filter_map(|block| match block {
-                ContentBlock::Text { text } => Some(text),
-                _ => None,
-            })
-            .collect::<Vec<_>>()
-            .join("\n")
-    }
 
     async fn send_request(&self, request: AnthropicRequest) -> Result<reqwest::Response, AIError> {
         let response = self
@@ -207,33 +200,6 @@ impl AnthropicProvider {
 
 #[async_trait]
 impl AIProvider for AnthropicProvider {
-    fn name(&self) -> &str {
-        "anthropic"
-    }
-
-    async fn chat(&self, request: ChatRequest) -> Result<ChatResponse, AIError> {
-        let anthropic_request = AnthropicRequest {
-            model: request.model.clone(),
-            messages: self.convert_messages(request.messages),
-            system: request.system,
-            max_tokens: request.max_tokens.unwrap_or(4096),
-            temperature: request.temperature,
-            stream: false,
-        };
-
-        let response = self.send_request(anthropic_request).await?;
-        let anthropic_response: AnthropicResponse = response.json().await?;
-
-        Ok(ChatResponse {
-            content: self.extract_text_from_response(anthropic_response.content),
-            model: anthropic_response.model,
-            usage: Some(TokenUsage {
-                input_tokens: anthropic_response.usage.input_tokens,
-                output_tokens: anthropic_response.usage.output_tokens,
-            }),
-        })
-    }
-
     async fn chat_stream(&self, request: ChatRequest) -> Result<StreamResult, AIError> {
         let anthropic_request = AnthropicRequest {
             model: request.model.clone(),

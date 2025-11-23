@@ -1,14 +1,10 @@
 use crate::commands::settings::AppSettings;
-use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
 #[derive(Debug, thiserror::Error)]
 pub enum SettingsError {
-    #[error("Failed to read settings file: {0}")]
-    ReadError(String),
-
     #[error("Failed to write settings file: {0}")]
     WriteError(String),
 
@@ -124,28 +120,6 @@ impl SettingsManager {
         fs::write(path, json)
             .map_err(|e| SettingsError::WriteError(e.to_string()))?;
 
-        Ok(())
-    }
-
-    /// Reload settings from disk
-    pub fn reload(&self) -> Result<(), SettingsError> {
-        if !self.settings_path.exists() {
-            return Ok(()); // Nothing to reload
-        }
-
-        let data = fs::read_to_string(&self.settings_path)
-            .map_err(|e| SettingsError::ReadError(e.to_string()))?;
-
-        let loaded_settings: AppSettings = serde_json::from_str(&data)
-            .map_err(|e| SettingsError::SerializationError(e.to_string()))?;
-
-        let mut settings = self
-            .settings
-            .lock()
-            .map_err(|e| SettingsError::LockError(e.to_string()))?;
-        *settings = loaded_settings;
-
-        println!("⚙️  Settings reloaded from disk");
         Ok(())
     }
 }

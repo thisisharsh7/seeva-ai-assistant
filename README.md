@@ -25,6 +25,7 @@ I was switching to AI tools 50+ times per day while coding. The constant context
 - **Instant Access**: Press Ctrl+Shift+Space from anywhere to show or hide the window
 - **Screen Vision**: Click "Watch Screen" and AI sees your screen automatically
 - **Works Everywhere**: Use it in any application, not just code editors or browsers
+- **Fullscreen Overlay**: Appears over fullscreen applications (browsers, editors, etc.)
 - **Multi-Thread Conversations**: Organize different topics into separate conversation threads
 - **Multiple AI Providers**: Support for Anthropic Claude, OpenAI GPT, OpenRouter (100+ models)
 - **Always On Top**: Floating window that never gets lost behind other apps
@@ -143,6 +144,56 @@ src-tauri/    - Rust backend
 - `Ctrl+Enter` - Send message
 - `Escape` - Hide window
 
+## Platform Compatibility & Fullscreen Overlay
+
+### Fullscreen Support
+
+Seeva can appear over fullscreen applications on all platforms, making it truly accessible anywhere. However, there are platform-specific differences:
+
+#### ✅ What Works
+
+| Platform | Browser Fullscreen | App Fullscreen | Game Fullscreen |
+|----------|-------------------|----------------|-----------------|
+| **macOS** | ✅ Chrome, Safari, Firefox | ✅ VSCode, apps | ✅ Most games |
+| **Windows** | ✅ Chrome, Firefox, Edge | ✅ VSCode, apps | ⚠️ Limited* |
+| **Linux** | ✅ Chrome, Firefox | ✅ Most apps | ⚠️ Limited* |
+
+*\*Exclusive fullscreen games (using DirectX/Vulkan exclusive mode) may not support overlays on any platform except macOS with our NSPanel implementation.*
+
+#### How It Works
+
+**macOS:**
+- Uses `NSPanel` with `NSWindowCollectionBehaviorCanJoinAllSpaces` and `NSWindowCollectionBehaviorFullScreenAuxiliary`
+- Configured as an Agent application (`LSUIElement`) similar to Raycast and Alfred
+- Window level set to appear above macOS menu bar (level 25)
+- Works across all macOS Spaces including fullscreen app Spaces
+
+**Windows & Linux:**
+- Uses native `alwaysOnTop` window property
+- Works with borderless windowed fullscreen (most modern apps and browsers)
+- Windows 10+ Fullscreen Optimizations automatically enable overlay support
+- May not work with older games using exclusive DirectX/OpenGL fullscreen
+
+#### Known Limitations
+
+⚠️ **Exclusive Fullscreen Games**: Games that use exclusive fullscreen mode (taking direct control of the graphics device) may not display overlays. This is the same limitation as PowerToys (Windows), Flow Launcher (Windows), and Ulauncher (Linux).
+
+**Workaround**: Most modern applications and browsers use borderless windowed fullscreen, which works perfectly with Seeva on all platforms.
+
+### Technical Implementation
+
+The fullscreen overlay feature is implemented with platform-specific optimizations:
+
+- **Cross-platform base**: Standard Tauri window with `alwaysOnTop: true`
+- **macOS enhancement**: Automatic conversion to NSPanel with proper collection behaviors
+- **Conditional compilation**: macOS-specific code is guarded with `#[cfg(target_os = "macos")]`
+- **Graceful fallback**: Falls back to standard window API if NSPanel conversion fails
+
+For technical details, see:
+- `src-tauri/src/lib.rs` (NSPanel initialization)
+- `src-tauri/src/commands/shortcut.rs` (Platform-specific window toggling)
+- `src-tauri/Info.plist` (macOS Agent configuration)
+
 ## Data Storage
 
 Seeva stores all data locally on your computer. No cloud services or external servers are used for storing your conversations.
@@ -177,6 +228,42 @@ Seeva stores all data locally on your computer. No cloud services or external se
 - You can delete individual messages, entire threads, or clear all data by removing the database file
 - Screen Recording permission is required for the "Watch Screen" feature to function
 - Each provider has their own data retention policies - check their documentation for details
+
+## Changelog
+
+### v0.1.7 - Enhanced Fullscreen Overlay Support
+
+#### 🎯 macOS Fullscreen Overlay
+- **NSPanel Implementation**: Converted main window to NSPanel on macOS for proper fullscreen overlay support
+- **Agent Application**: Configured as LSUIElement (Agent app) like Raycast and Alfred
+- **All Spaces Support**: Window now appears across all macOS Spaces including fullscreen app Spaces
+- **Collection Behaviors**: Implemented `NSWindowCollectionBehaviorCanJoinAllSpaces` and `NSWindowCollectionBehaviorFullScreenAuxiliary`
+- **Non-activating Panel**: Uses `NSWindowStyleMaskNonactivatingPanel` to avoid app activation
+- **Window Level**: Set to level 25 (above macOS menu bar) for consistent visibility
+
+#### 🔧 Technical Improvements
+- **Platform-specific Code**: All macOS-specific code properly guarded with `#[cfg(target_os = "macos")]`
+- **Cross-platform Compatibility**: Windows and Linux continue using standard window API
+- **Graceful Fallback**: Falls back to regular window if NSPanel conversion fails
+- **Conditional Plugin Loading**: tauri-nspanel only loaded on macOS builds
+
+#### 📝 Code Changes
+- Added `tauri-nspanel` dependency (macOS-only)
+- Created custom `SeevaPanel` configuration
+- Updated shortcut handler to work with NSPanel
+- Added `Info.plist` with LSUIElement configuration
+- Enhanced window toggle logic with platform-specific optimizations
+
+#### 🐛 Bug Fixes
+- Fixed global shortcut not working when other apps are in fullscreen on macOS
+- Improved window focusing behavior with `order_front_regardless()`
+- Ensured proper window visibility state management
+
+#### 📚 Documentation
+- Added comprehensive Platform Compatibility section
+- Documented fullscreen support across all platforms
+- Added technical implementation details
+- Clarified limitations for exclusive-mode games
 
 ## License
 

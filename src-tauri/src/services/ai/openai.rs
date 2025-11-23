@@ -1,12 +1,10 @@
 use async_trait::async_trait;
-use futures::{Stream, StreamExt};
+use futures::StreamExt;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
-use std::pin::Pin;
 
 use super::provider::{
-    AIError, AIProvider, ChatMessage, ChatRequest, ChatResponse, StreamEvent, StreamResult,
-    TokenUsage,
+    AIError, AIProvider, ChatMessage, ChatRequest, StreamEvent, StreamResult,
 };
 
 const OPENAI_API_URL: &str = "https://api.openai.com/v1/chat/completions";
@@ -55,6 +53,7 @@ struct ImageUrl {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct OpenAIResponse {
     id: String,
     model: String,
@@ -63,12 +62,14 @@ struct OpenAIResponse {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct Choice {
     message: OpenAIMessage,
     finish_reason: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct OpenAIUsage {
     prompt_tokens: u32,
     completion_tokens: u32,
@@ -76,6 +77,7 @@ struct OpenAIUsage {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct OpenAIStreamResponse {
     id: String,
     choices: Vec<StreamChoice>,
@@ -99,6 +101,7 @@ struct OpenAIErrorResponse {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct OpenAIErrorDetail {
     message: String,
     #[serde(rename = "type")]
@@ -150,19 +153,6 @@ impl OpenAIProvider {
             .collect()
     }
 
-    fn extract_text_from_message(&self, message: OpenAIMessage) -> String {
-        match message.content {
-            OpenAIContent::Text(text) => text,
-            OpenAIContent::ContentParts(parts) => parts
-                .into_iter()
-                .filter_map(|part| match part {
-                    ContentPart::Text { text } => Some(text),
-                    _ => None,
-                })
-                .collect::<Vec<_>>()
-                .join("\n"),
-        }
-    }
 
     async fn send_request(&self, request: OpenAIRequest) -> Result<reqwest::Response, AIError> {
         let response = self
@@ -202,50 +192,6 @@ impl OpenAIProvider {
 
 #[async_trait]
 impl AIProvider for OpenAIProvider {
-    fn name(&self) -> &str {
-        "openai"
-    }
-
-    async fn chat(&self, request: ChatRequest) -> Result<ChatResponse, AIError> {
-        let mut messages = self.convert_messages(request.messages);
-
-        // OpenAI doesn't have a separate system parameter, add as system message
-        if let Some(system) = request.system {
-            messages.insert(
-                0,
-                OpenAIMessage {
-                    role: "system".to_string(),
-                    content: OpenAIContent::Text(system),
-                },
-            );
-        }
-
-        let openai_request = OpenAIRequest {
-            model: request.model.clone(),
-            messages,
-            max_completion_tokens: request.max_tokens,
-            stream: false,
-        };
-
-        let response = self.send_request(openai_request).await?;
-        let openai_response: OpenAIResponse = response.json().await?;
-
-        let first_choice = openai_response
-            .choices
-            .into_iter()
-            .next()
-            .ok_or_else(|| AIError::ApiError("No choices in response".to_string()))?;
-
-        Ok(ChatResponse {
-            content: self.extract_text_from_message(first_choice.message),
-            model: openai_response.model,
-            usage: Some(TokenUsage {
-                input_tokens: openai_response.usage.prompt_tokens,
-                output_tokens: openai_response.usage.completion_tokens,
-            }),
-        })
-    }
-
     async fn chat_stream(&self, request: ChatRequest) -> Result<StreamResult, AIError> {
         let mut messages = self.convert_messages(request.messages);
 

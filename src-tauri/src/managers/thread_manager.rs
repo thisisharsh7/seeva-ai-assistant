@@ -123,6 +123,7 @@ impl ThreadManager {
     }
 
     // Utility methods
+    #[allow(dead_code)]
     pub fn ensure_thread_exists(&self) -> Result<String> {
         // Check if current thread exists
         if let Some(thread_id) = self.get_current_thread_id() {

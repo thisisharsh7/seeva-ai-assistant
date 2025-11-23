@@ -9,25 +9,84 @@ use services::{Database, ScreenshotService, SettingsManager};
 use std::sync::Arc;
 use tauri::Manager;
 
+// Define a custom Panel for macOS
+#[cfg(target_os = "macos")]
+use tauri_nspanel::tauri_panel;
+
+#[cfg(target_os = "macos")]
+tauri_panel! {
+    panel!(SeevaPanel {
+        config: {
+            can_become_key_window: true,
+            is_floating_panel: true
+        }
+    })
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // Initialize logging
     tracing_subscriber::fmt::init();
 
-    tauri::Builder::default()
+    let mut builder = tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
-        .plugin(tauri_plugin_updater::Builder::new().build())
-        .setup(|app| {
-            // Configure window for macOS transparency effects
+        .plugin(tauri_plugin_updater::Builder::new().build());
+
+    // Initialize NSPanel plugin only on macOS
+    #[cfg(target_os = "macos")]
+    {
+        builder = builder.plugin(tauri_nspanel::init());
+    }
+
+    builder.setup(|app| {
+            // Configure window for macOS transparency effects and convert to NSPanel
             #[cfg(target_os = "macos")]
             {
                 use tauri::TitleBarStyle;
+                use tauri_nspanel::WebviewWindowExt;
+
                 if let Some(window) = app.get_webview_window("main") {
                     // Set title bar style to overlay for better transparency
                     let _ = window.set_title_bar_style(TitleBarStyle::Overlay);
+
+                    // Convert to NSPanel to allow appearing over fullscreen apps
+                    // Panel operations must run on main thread
+                    let app_handle = app.handle().clone();
+                    app_handle.run_on_main_thread(move || {
+                        match window.to_panel::<SeevaPanel>() {
+                            Ok(panel) => {
+                                use tauri_nspanel::panel::NSWindowCollectionBehavior;
+
+                                println!("✅ Successfully converted window to NSPanel");
+
+                                // CRITICAL: Set NonactivatingPanel style mask
+                                // This allows the panel to show over fullscreen apps without activating our app
+                                use tauri_nspanel::panel::NSWindowStyleMask;
+                                panel.set_style_mask(NSWindowStyleMask::NonactivatingPanel);
+                                println!("✅ Panel style mask set to NonactivatingPanel");
+
+                                // Configure panel to appear on all spaces and above fullscreen apps
+                                // Window levels: Normal=0, Floating=3, Main menu=24, Status=25
+                                // We use mainMenu level + 1
+                                panel.set_level(25);
+
+                                // Make panel appear on all spaces (including fullscreen app spaces)
+                                panel.set_collection_behavior(
+                                    NSWindowCollectionBehavior::CanJoinAllSpaces
+                                    | NSWindowCollectionBehavior::FullScreenAuxiliary
+                                );
+                                println!("✅ Panel collection behavior set successfully");
+
+                                println!("✅ Panel configured to appear on all spaces and above fullscreen apps");
+                            }
+                            Err(e) => {
+                                eprintln!("❌ Failed to convert window to panel: {}", e);
+                            }
+                        }
+                    }).ok();
                 }
             }
 

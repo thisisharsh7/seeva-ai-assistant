@@ -1,12 +1,10 @@
 use async_trait::async_trait;
-use futures::{Stream, StreamExt};
+use futures::StreamExt;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
-use std::pin::Pin;
 
 use super::provider::{
-    AIError, AIProvider, ChatMessage, ChatRequest, ChatResponse, StreamEvent, StreamResult,
-    TokenUsage,
+    AIError, AIProvider, ChatMessage, ChatRequest, StreamEvent, StreamResult,
 };
 
 const OPENROUTER_API_URL: &str = "https://openrouter.ai/api/v1/chat/completions";
@@ -54,6 +52,7 @@ struct ImageUrl {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct OpenRouterResponse {
     id: String,
     model: String,
@@ -62,12 +61,14 @@ struct OpenRouterResponse {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct Choice {
     message: OpenRouterMessage,
     finish_reason: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct OpenRouterUsage {
     prompt_tokens: u32,
     completion_tokens: u32,
@@ -75,6 +76,7 @@ struct OpenRouterUsage {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct OpenRouterStreamResponse {
     id: String,
     choices: Vec<StreamChoice>,
@@ -98,6 +100,7 @@ struct OpenRouterErrorResponse {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct OpenRouterErrorDetail {
     message: String,
     code: Option<String>,
@@ -147,19 +150,6 @@ impl OpenRouterProvider {
             .collect()
     }
 
-    fn extract_text_from_message(&self, message: OpenRouterMessage) -> String {
-        match message.content {
-            OpenRouterContent::Text(text) => text,
-            OpenRouterContent::ContentParts(parts) => parts
-                .into_iter()
-                .filter_map(|part| match part {
-                    ContentPart::Text { text } => Some(text),
-                    _ => None,
-                })
-                .collect::<Vec<_>>()
-                .join("\n"),
-        }
-    }
 
     async fn send_request(
         &self,
@@ -206,51 +196,6 @@ impl OpenRouterProvider {
 
 #[async_trait]
 impl AIProvider for OpenRouterProvider {
-    fn name(&self) -> &str {
-        "openrouter"
-    }
-
-    async fn chat(&self, request: ChatRequest) -> Result<ChatResponse, AIError> {
-        let mut messages = self.convert_messages(request.messages);
-
-        // Add system message if provided
-        if let Some(system) = request.system {
-            messages.insert(
-                0,
-                OpenRouterMessage {
-                    role: "system".to_string(),
-                    content: OpenRouterContent::Text(system),
-                },
-            );
-        }
-
-        let openrouter_request = OpenRouterRequest {
-            model: request.model.clone(),
-            messages,
-            temperature: request.temperature,
-            max_tokens: request.max_tokens,
-            stream: false,
-        };
-
-        let response = self.send_request(openrouter_request).await?;
-        let openrouter_response: OpenRouterResponse = response.json().await?;
-
-        let first_choice = openrouter_response
-            .choices
-            .into_iter()
-            .next()
-            .ok_or_else(|| AIError::ApiError("No choices in response".to_string()))?;
-
-        Ok(ChatResponse {
-            content: self.extract_text_from_message(first_choice.message),
-            model: openrouter_response.model,
-            usage: openrouter_response.usage.map(|u| TokenUsage {
-                input_tokens: u.prompt_tokens,
-                output_tokens: u.completion_tokens,
-            }),
-        })
-    }
-
     async fn chat_stream(&self, request: ChatRequest) -> Result<StreamResult, AIError> {
         let mut messages = self.convert_messages(request.messages);
 

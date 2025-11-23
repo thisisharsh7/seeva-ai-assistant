@@ -67,21 +67,12 @@ pub enum AIError {
 
     #[error("Model not found: {0}")]
     ModelNotFound(String),
-
-    #[error("Invalid request: {0}")]
-    InvalidRequest(String),
 }
 
 pub type StreamResult = Pin<Box<dyn Stream<Item = Result<StreamEvent, AIError>> + Send>>;
 
 #[async_trait]
 pub trait AIProvider: Send + Sync {
-    /// Get provider name
-    fn name(&self) -> &str;
-
-    /// Send a chat request without streaming
-    async fn chat(&self, request: ChatRequest) -> Result<ChatResponse, AIError>;
-
     /// Send a chat request with streaming
     async fn chat_stream(&self, request: ChatRequest) -> Result<StreamResult, AIError>;
 

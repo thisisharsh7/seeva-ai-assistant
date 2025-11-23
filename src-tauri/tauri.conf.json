@@ -51,7 +51,8 @@
     "macOS": {
       "minimumSystemVersion": "10.13",
       "entitlements": "./Entitlements.plist",
-      "hardenedRuntime": true
+      "hardenedRuntime": true,
+      "infoPlist": "./Info.plist"
     }
   },
   "plugins": {

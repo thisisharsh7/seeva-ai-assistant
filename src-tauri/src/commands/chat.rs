@@ -16,7 +16,7 @@ pub async fn send_message(
     api_key: String,
     model: String,
     max_tokens: Option<u32>,
-    include_context: Option<bool>,
+    _include_context: Option<bool>,
     thread_manager: State<'_, Arc<ThreadManager>>,
     app_handle: tauri::AppHandle,
 ) -> Result<Message, String> {
@@ -28,7 +28,7 @@ pub async fn send_message(
     }
 
     // Add user message to database
-    let user_message = thread_manager
+    let _user_message = thread_manager
         .add_message(
             thread_id.clone(),
             MessageRole::User,
