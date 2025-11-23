@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { ScreenContext } from '../lib/types';
 
 interface UIState {
   // Modals
@@ -10,6 +11,9 @@ interface UIState {
   screenshotCache: string | null; // Persistent cache for window reopens
   isCapturingScreenshot: boolean;
   isCompressingScreenshot: boolean;
+
+  // Screen Context
+  screenContext: ScreenContext | null;
 
   // Loading states
   isSending: boolean;
@@ -31,6 +35,10 @@ interface UIState {
   setCapturingScreenshot: (isCapturing: boolean) => void;
   setCompressingScreenshot: (isCompressing: boolean) => void;
 
+  // Screen Context actions
+  setScreenContext: (context: ScreenContext | null) => void;
+  clearScreenContext: () => void;
+
   setIsSending: (isSending: boolean) => void;
 
   toggleSidebar: () => void;
@@ -44,6 +52,7 @@ export const useUIStore = create<UIState>((set) => ({
   screenshotCache: null,
   isCapturingScreenshot: false,
   isCompressingScreenshot: false,
+  screenContext: null,
   isSending: false,
   isSidebarOpen: true,
 
@@ -63,6 +72,10 @@ export const useUIStore = create<UIState>((set) => ({
   setCachedScreenshot: (screenshot) => set({ screenshotCache: screenshot }),
   setCapturingScreenshot: (isCapturing) => set({ isCapturingScreenshot: isCapturing }),
   setCompressingScreenshot: (isCompressing) => set({ isCompressingScreenshot: isCompressing }),
+
+  // Screen Context actions
+  setScreenContext: (context) => set({ screenContext: context }),
+  clearScreenContext: () => set({ screenContext: null }),
 
   // Loading actions
   setIsSending: (isSending) => set({ isSending }),

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Message } from '../../lib/types';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -6,6 +6,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Copy, Check } from 'lucide-react';
 import { openUrl } from '@tauri-apps/plugin-opener';
+import { MessageContextChip } from './MessageContextChip';
 
 interface MessageBubbleProps {
   message: Message;
@@ -15,6 +16,29 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user';
   const isAssistant = message.role === 'assistant';
   const [copied, setCopied] = useState(false);
+
+  // Parse context from message content
+  const { hasContext, appName, windowTitle, cleanContent } = useMemo(() => {
+    const contextRegex = /^\[Context: ([^\]]+)\]\n\n/;
+    const match = message.content.match(contextRegex);
+
+    if (match) {
+      const contextParts = match[1].split(' - ');
+      return {
+        hasContext: true,
+        appName: contextParts[0] || '',
+        windowTitle: contextParts[1] || '',
+        cleanContent: message.content.replace(contextRegex, ''),
+      };
+    }
+
+    return {
+      hasContext: false,
+      appName: '',
+      windowTitle: '',
+      cleanContent: message.content,
+    };
+  }, [message.content]);
 
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp);
@@ -58,6 +82,11 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 
         {/* Message bubble */}
         <div className={`${isUser ? 'message-user self-end' : 'message-assistant self-start'} px-3 py-2.5 min-w-0 w-full`}>
+          {/* Context chip if present */}
+          {hasContext && (
+            <MessageContextChip appName={appName} windowTitle={windowTitle} />
+          )}
+
           {/* Message content with markdown */}
           <div className="prose prose-sm prose-invert max-w-none text-[13.5px] min-w-0">
             <ReactMarkdown
@@ -114,20 +143,26 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                 ),
               }}
             >
-              {message.content}
+              {cleanContent}
             </ReactMarkdown>
           </div>
 
-          {/* Images if present */}
+          {/* Images if present - show as small thumbnails */}
           {message.images && message.images.length > 0 && (
-            <div className="mt-1.5 flex flex-wrap gap-2">
+            <div className="mt-2 flex flex-wrap gap-2">
               {message.images.map((img, idx) => (
-                <img
-                  key={idx}
-                  src={`data:image/png;base64,${img}`}
-                  alt={`Screenshot ${idx + 1}`}
-                  className="w-full max-w-sm h-auto rounded border border-border-subtle"
-                />
+                <div key={idx} className="relative group">
+                  <img
+                    src={`data:image/png;base64,${img}`}
+                    alt={`Screenshot ${idx + 1}`}
+                    className="w-32 h-20 object-cover rounded-lg border border-border-subtle cursor-pointer hover:border-blue-500 transition-colors"
+                    onClick={() => {
+                      // TODO: Open full size in modal/viewer
+                      console.log('Open screenshot', idx);
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition-colors pointer-events-none" />
+                </div>
               ))}
             </div>
           )}

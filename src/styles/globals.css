@@ -225,6 +225,42 @@
     box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
   }
 
+  /* Context Chip - Dark theme (default) */
+  .context-chip {
+    background-color: rgb(255 255 255 / 0.15);
+    border: 1px solid rgb(255 255 255 / 0.2);
+  }
+
+  .chip-icon {
+    color: rgb(200 200 210);
+  }
+
+  .chip-text-primary {
+    color: rgb(240 240 245);
+  }
+
+  .chip-text-secondary {
+    color: rgb(200 200 210);
+  }
+
+  /* Context Chip - Light theme */
+  [data-theme="light"] .context-chip {
+    background-color: rgb(30 100 200 / 0.15);
+    border: 1px solid rgb(30 100 200 / 0.25);
+  }
+
+  [data-theme="light"] .chip-icon {
+    color: rgb(30 80 180);
+  }
+
+  [data-theme="light"] .chip-text-primary {
+    color: rgb(20 60 140);
+  }
+
+  [data-theme="light"] .chip-text-secondary {
+    color: rgb(40 90 170);
+  }
+
   /* Animations */
   @keyframes slide-in {
     from {

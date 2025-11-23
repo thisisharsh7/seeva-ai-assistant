@@ -61,6 +61,7 @@ const defaultSettings: AppSettings = {
   },
   theme: 'dark',
   shortcut: 'Control+Shift+Space',
+  enableContextDetection: true,
 };
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({

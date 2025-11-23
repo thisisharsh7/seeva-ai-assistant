@@ -174,7 +174,7 @@ impl Database {
                 message.role.as_str(),
                 message.content,
                 message.created_at,
-                message.metadata.as_ref().map(|m| serde_json::to_string(m).ok()).flatten()
+                message.metadata.as_ref().and_then(|m| serde_json::to_string(m).ok())
             ],
         )?;
 

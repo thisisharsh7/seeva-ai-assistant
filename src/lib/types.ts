@@ -44,6 +44,7 @@ export interface Settings {
     launchOnStartup: boolean;
     minimizeToTray: boolean;
     showNotifications: boolean;
+    enableContextDetection: boolean;
   };
   aiProviders: {
     default: AIProvider;
@@ -106,4 +107,11 @@ export interface AppError {
   code: string;
   message: string;
   details?: unknown;
+}
+
+// Screen Context types
+export interface ScreenContext {
+  app_name: string;
+  window_title: string;
+  timestamp: number;
 }

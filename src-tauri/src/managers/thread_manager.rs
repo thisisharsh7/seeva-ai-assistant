@@ -57,7 +57,7 @@ impl ThreadManager {
 
         // Clear current thread if it was deleted
         let mut current = self.current_thread_id.lock().unwrap();
-        if current.as_ref().map_or(false, |cid| cid == id) {
+        if current.as_ref().is_some_and(|cid| cid == id) {
             *current = None;
         }
 
@@ -150,7 +150,6 @@ impl ThreadManager {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
     use tempfile::TempDir;
 
     fn setup_test_db() -> (Arc<Database>, TempDir) {

@@ -1,6 +1,8 @@
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
 use std::str::FromStr;
+use crate::services::context_detector::ContextDetector;
+use crate::commands::settings::SettingsState;
 
 #[cfg(target_os = "macos")]
 use tauri_nspanel::ManagerExt;
@@ -40,12 +42,57 @@ pub async fn register_global_shortcut(
                     } else {
                         println!("👁️ Panel is hidden, showing it");
 
-                        // For panels, we need to forcefully order it to the front
-                        // order_front_regardless() brings window to front even if app is not active
-                        panel.show();
-                        panel.order_front_regardless();
-                        panel.make_key_window();
-                        println!("✅ Panel shown, ordered front regardless, and made key window");
+                        // CONTEXT DETECTION: Detect context before showing window (if enabled)
+                        let app_handle = app.clone();
+
+                        tauri::async_runtime::spawn(async move {
+                            // Read context detection setting
+                            let enable_context = app_handle
+                                .state::<SettingsState>()
+                                .get()
+                                .map(|s| s.enable_context_detection)
+                                .unwrap_or(true); // Default to enabled if settings fail to load
+
+                            // Only detect context if enabled in settings
+                            let context_result = if enable_context {
+                                println!("🔍 [SHORTCUT] Context detection enabled, detecting screen context...");
+                                Some(ContextDetector::detect_context().await)
+                            } else {
+                                println!("⚙️  [SHORTCUT] Context detection disabled in settings");
+                                None
+                            };
+
+                            // Get panel and show it on main thread
+                            let app_for_show = app_handle.clone();
+                            app_handle.run_on_main_thread(move || {
+                                if let Ok(panel) = app_for_show.get_webview_panel("main") {
+                                    panel.show();
+                                    panel.order_front_regardless();
+                                    panel.make_key_window();
+                                    println!("✅ Panel shown, ordered front regardless, and made key window");
+                                }
+                            }).ok();
+
+                            // Emit context if detection was enabled and successful
+                            if let Some(result) = context_result {
+                                match result {
+                                    Ok(context) => {
+                                        println!("✅ [SHORTCUT] Context detected successfully");
+
+                                        // Emit context to frontend
+                                        if let Err(e) = app_handle.emit("screen-context-detected", &context) {
+                                            eprintln!("❌ [SHORTCUT] Failed to emit context event: {}", e);
+                                        } else {
+                                            println!("✅ [SHORTCUT] Context event emitted to frontend");
+                                        }
+                                    }
+                                    Err(e) => {
+                                        eprintln!("⚠️  [SHORTCUT] Context detection failed: {}", e);
+                                        eprintln!("   Window shown without context.");
+                                    }
+                                }
+                            }
+                        });
                     }
                 } else if let Some(window) = app.get_webview_window("main") {
                     // Fallback to window API
@@ -57,12 +104,46 @@ pub async fn register_global_shortcut(
                                     eprintln!("Failed to hide window: {}", e);
                                 }
                             } else {
-                                if let Err(e) = window.show() {
-                                    eprintln!("Failed to show window: {}", e);
-                                }
-                                if let Err(e) = window.set_focus() {
-                                    eprintln!("Failed to focus window: {}", e);
-                                }
+                                // CONTEXT DETECTION: Detect context before showing window
+                                let app_handle = app.clone();
+
+                                tauri::async_runtime::spawn(async move {
+                                    println!("🔍 [SHORTCUT] Detecting screen context before showing window...");
+
+                                    // Detect context asynchronously
+                                    let context_result = ContextDetector::detect_context().await;
+
+                                    // Show window on main thread
+                                    let app_for_show = app_handle.clone();
+                                    app_handle.run_on_main_thread(move || {
+                                        if let Some(window) = app_for_show.get_webview_window("main") {
+                                            if let Err(e) = window.show() {
+                                                eprintln!("Failed to show window: {}", e);
+                                            }
+                                            if let Err(e) = window.set_focus() {
+                                                eprintln!("Failed to focus window: {}", e);
+                                            }
+                                        }
+                                    }).ok();
+
+                                    // Emit context if successfully detected
+                                    match context_result {
+                                        Ok(context) => {
+                                            println!("✅ [SHORTCUT] Context detected successfully");
+
+                                            // Emit context to frontend
+                                            if let Err(e) = app_handle.emit("screen-context-detected", &context) {
+                                                eprintln!("❌ [SHORTCUT] Failed to emit context event: {}", e);
+                                            } else {
+                                                println!("✅ [SHORTCUT] Context event emitted to frontend");
+                                            }
+                                        }
+                                        Err(e) => {
+                                            eprintln!("⚠️  [SHORTCUT] Context detection failed: {}", e);
+                                            eprintln!("   Window shown without context.");
+                                        }
+                                    }
+                                });
                             }
                         }
                         Err(e) => {
@@ -85,12 +166,46 @@ pub async fn register_global_shortcut(
                                     eprintln!("Failed to hide window: {}", e);
                                 }
                             } else {
-                                if let Err(e) = window.show() {
-                                    eprintln!("Failed to show window: {}", e);
-                                }
-                                if let Err(e) = window.set_focus() {
-                                    eprintln!("Failed to focus window: {}", e);
-                                }
+                                // CONTEXT DETECTION: Detect context before showing window
+                                let app_handle = app.clone();
+
+                                tauri::async_runtime::spawn(async move {
+                                    println!("🔍 [SHORTCUT] Detecting screen context before showing window...");
+
+                                    // Detect context asynchronously
+                                    let context_result = ContextDetector::detect_context().await;
+
+                                    // Show window on main thread
+                                    let app_for_show = app_handle.clone();
+                                    app_handle.run_on_main_thread(move || {
+                                        if let Some(window) = app_for_show.get_webview_window("main") {
+                                            if let Err(e) = window.show() {
+                                                eprintln!("Failed to show window: {}", e);
+                                            }
+                                            if let Err(e) = window.set_focus() {
+                                                eprintln!("Failed to focus window: {}", e);
+                                            }
+                                        }
+                                    }).ok();
+
+                                    // Emit context if successfully detected
+                                    match context_result {
+                                        Ok(context) => {
+                                            println!("✅ [SHORTCUT] Context detected successfully");
+
+                                            // Emit context to frontend
+                                            if let Err(e) = app_handle.emit("screen-context-detected", &context) {
+                                                eprintln!("❌ [SHORTCUT] Failed to emit context event: {}", e);
+                                            } else {
+                                                println!("✅ [SHORTCUT] Context event emitted to frontend");
+                                            }
+                                        }
+                                        Err(e) => {
+                                            eprintln!("⚠️  [SHORTCUT] Context detection failed: {}", e);
+                                            eprintln!("   Window shown without context.");
+                                        }
+                                    }
+                                });
                             }
                         }
                         Err(e) => {

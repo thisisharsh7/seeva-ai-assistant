@@ -2,9 +2,10 @@ import { useState, useRef, useEffect, KeyboardEvent } from 'react';
 import { useChatStore } from '../../stores/chatStore';
 import { useUIStore } from '../../stores/uiStore';
 import { useSettingsStore } from '../../stores/settingsStore';
-import { screenshotAPI } from '../../lib/tauri-api';
+import { screenshotAPI, contextAPI } from '../../lib/tauri-api';
 import { Button } from '../ui';
 import { Camera, Send, Settings, Loader2, Plus } from 'lucide-react';
+import type { ScreenContext } from '../../lib/types';
 
 export function InputBar() {
   const [input, setInput] = useState('');
@@ -23,7 +24,10 @@ export function InputBar() {
     isCapturingScreenshot,
     isCompressingScreenshot,
     setCapturingScreenshot,
-    setCompressingScreenshot
+    setCompressingScreenshot,
+    screenContext,
+    setScreenContext,
+    clearScreenContext
   } = useUIStore();
   const { settings: appSettings } = useSettingsStore();
 
@@ -56,6 +60,17 @@ export function InputBar() {
       setScreenshot(screenshot);
       setCachedScreenshot(screenshot);
 
+      // Detect context after screenshot capture
+      try {
+        console.log('🔍 Detecting screen context...');
+        const context = await contextAPI.detect() as ScreenContext;
+        console.log('✅ Context detected:', context);
+        setScreenContext(context);
+      } catch (contextError) {
+        console.error('❌ Context detection failed:', contextError);
+        // Don't fail the screenshot if context detection fails
+      }
+
       // Keep processing overlay for smooth transition
       await new Promise(resolve => setTimeout(resolve, 300));
 
@@ -76,13 +91,22 @@ export function InputBar() {
   const handleSend = async () => {
     if (!input.trim() || isStreaming || isSending) return;
 
-    const messageContent = input.trim();
+    let messageContent = input.trim();
+
+    // Prepend context info if available
+    if (screenContext) {
+      const contextPrefix = `[Context: ${screenContext.app_name}${screenContext.window_title ? ` - ${screenContext.window_title}` : ''}]\n\n`;
+      messageContent = contextPrefix + messageContent;
+    }
+
+    // Collect images
     const images = currentScreenshot ? [currentScreenshot] : null;
 
-    // Clear input, screenshot AND cache immediately
+    // Clear input, screenshot, cache, and context immediately
     setInput('');
     clearScreenshot();
-    setCachedScreenshot(null); // Clear cache after send
+    setCachedScreenshot(null);
+    clearScreenContext();
     setIsSending(true);
 
     try {
@@ -224,7 +248,15 @@ export function InputBar() {
                 onClick={handleSend}
                 disabled={!input.trim() || isCapturingScreenshot || isCompressingScreenshot || !hasApiKey || !isApiKeyValidated}
                 className="flex-shrink-0 p-2"
-                title={!hasApiKey ? 'Configure API key first' : !isApiKeyValidated ? 'Validate API key first' : 'Send message'}
+                title={
+                  !hasApiKey
+                    ? 'Configure API key first'
+                    : !isApiKeyValidated
+                    ? 'Validate API key first'
+                    : !input.trim()
+                    ? 'Type a message to send'
+                    : 'Send message'
+                }
               >
                 <Send size={22} />
               </Button>

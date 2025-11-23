@@ -341,20 +341,23 @@ export function SettingsModal() {
           </p>
         </div>
 
-        {/* Context Detection Section - Coming Soon */}
+        {/* Context Detection Section */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between py-2 px-3 rounded-lg border border-border-subtle bg-surface-secondary/30 opacity-60">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-primary">Context Detection</span>
-              <span className="text-xs px-2 py-0.5 bg-accent-blue/20 text-accent-blue rounded-full font-medium">
-                Soon
-              </span>
-            </div>
+          <div className="flex items-center justify-between py-2 px-3 rounded-lg border border-border-subtle bg-surface-secondary/30">
+            <span className="text-sm font-medium text-primary">Screen Context</span>
             <button
-              disabled
-              className="relative inline-flex h-6 w-11 items-center rounded-full bg-accent-blue/10 cursor-not-allowed"
+              onClick={() => {
+                autoSave({
+                  enableContextDetection: !localSettings.enableContextDetection,
+                });
+              }}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                localSettings.enableContextDetection ? 'bg-accent-blue' : 'bg-glass-light/50'
+              }`}
             >
-              <span className="inline-block h-4 w-4 transform rounded-full bg-white/50 shadow-sm translate-x-1" />
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
+                localSettings.enableContextDetection ? 'translate-x-6' : 'translate-x-1'
+              }`} />
             </button>
           </div>
         </div>

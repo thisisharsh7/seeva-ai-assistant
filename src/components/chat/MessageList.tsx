@@ -3,12 +3,13 @@ import { useChatStore } from '../../stores/chatStore';
 import { useUIStore } from '../../stores/uiStore';
 import { MessageBubble } from './MessageBubble';
 import { ScreenshotPreview } from './ScreenshotPreview';
+import { ContextPill } from './ContextPill';
 import { Spinner } from '../ui';
 import { MessageSquare } from 'lucide-react';
 
 export function MessageList() {
   const { currentThreadId, isStreaming, streamingContent, getThreadMessages } = useChatStore();
-  const { currentScreenshot, isCapturingScreenshot, clearScreenshot } = useUIStore();
+  const { currentScreenshot, isCapturingScreenshot, clearScreenshot, screenContext } = useUIStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -52,7 +53,7 @@ export function MessageList() {
         className="h-full overflow-y-auto overflow-x-hidden px-2 sm:px-4 py-6 space-y-3 backdrop-blur-sm"
         style={{
           backdropFilter: 'blur(8px)',
-          paddingBottom: currentScreenshot ? '180px' : '24px' // Add padding when screenshot is shown
+          paddingBottom: (currentScreenshot || screenContext) ? '100px' : '24px' // Add padding when screenshot or context is shown
         }}
       >
         {/* Existing messages */}
@@ -84,15 +85,18 @@ export function MessageList() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Floating Screenshot Section */}
-      {currentScreenshot && (
+      {/* Floating Bottom Section - Screenshot and Context */}
+      {(currentScreenshot || screenContext) && (
         <div className="absolute bottom-0 left-0 right-0 pointer-events-none">
-          <div className="pointer-events-auto">
-            <ScreenshotPreview
-              screenshot={currentScreenshot}
-              isProcessing={isCapturingScreenshot}
-              onRemove={clearScreenshot}
-            />
+          <div className="pointer-events-auto flex flex-col items-start gap-2 px-2 sm:px-4 pb-2">
+            {currentScreenshot && (
+              <ScreenshotPreview
+                screenshot={currentScreenshot}
+                isProcessing={isCapturingScreenshot}
+                onRemove={clearScreenshot}
+              />
+            )}
+            {screenContext && <ContextPill />}
           </div>
         </div>
       )}

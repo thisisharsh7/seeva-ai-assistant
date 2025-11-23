@@ -1,6 +1,7 @@
 import { ChatWindow } from "./components/chat";
 import { ToastContainer } from "./components/ui";
 import { useStreamListener } from "./hooks/useStreamListener";
+import { useContextListener } from "./hooks/useContextListener";
 import { useTheme } from "./hooks/useTheme";
 import { useEffect } from "react";
 import { shortcutAPI } from "./lib/tauri-api";
@@ -8,8 +9,9 @@ import { useSettingsStore } from "./stores/settingsStore";
 import { check } from "@tauri-apps/plugin-updater";
 
 function App() {
-  // Set up stream event listener
+  // Set up event listeners
   useStreamListener();
+  useContextListener();
 
   // Apply theme to root element
   const { theme } = useTheme();

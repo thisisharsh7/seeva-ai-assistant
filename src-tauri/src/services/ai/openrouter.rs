@@ -399,6 +399,6 @@ mod tests {
         let models = provider.available_models();
         assert!(models.contains(&"anthropic/claude-3.5-sonnet".to_string()));
         assert!(models.contains(&"openai/gpt-4o".to_string()));
-        assert!(models.len() > 0);
+        assert!(!models.is_empty());
     }
 }

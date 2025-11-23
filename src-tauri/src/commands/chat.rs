@@ -8,6 +8,7 @@ use std::sync::Arc;
 use tauri::{Emitter, State};
 
 #[tauri::command]
+#[allow(clippy::too_many_arguments)]
 pub async fn send_message(
     thread_id: String,
     content: String,

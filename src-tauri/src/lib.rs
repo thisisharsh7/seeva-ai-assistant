@@ -162,6 +162,8 @@ pub fn run() {
             // Shortcut commands
             commands::register_global_shortcut,
             commands::unregister_global_shortcut,
+            // Context commands
+            commands::detect_screen_context,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

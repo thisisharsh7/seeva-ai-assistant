@@ -359,6 +359,6 @@ mod tests {
         let provider = AnthropicProvider::new("test-key".to_string());
         let models = provider.available_models();
         assert!(models.contains(&"claude-3-5-sonnet-20241022".to_string()));
-        assert!(models.len() > 0);
+        assert!(!models.is_empty());
     }
 }

@@ -59,15 +59,22 @@ export const useChatStore = create<ChatState>((set, get) => ({
         currentId = newThread.id;
       }
 
+      // If backend has no current thread but threads exist, auto-select the first one
+      if (!currentId && threads.length > 0) {
+        currentId = threads[0].id;
+        await threadAPI.switch(currentId); // Synchronize backend with frontend
+        console.log('🧵 Auto-selected first thread:', currentId);
+      }
+
       set({
         threads,
-        currentThreadId: currentId || threads[0]?.id || null,
+        currentThreadId: currentId || null,
         isLoadingThreads: false
       });
 
       // Load messages for current thread
-      if (currentId || threads[0]?.id) {
-        await get().loadMessages(currentId || threads[0].id);
+      if (currentId) {
+        await get().loadMessages(currentId);
       }
     } catch (error) {
       console.error('Failed to load threads:', error);

@@ -16,6 +16,12 @@ pub struct AppSettings {
     pub ollama: ProviderSettings,
     pub theme: String,
     pub shortcut: String,
+    #[serde(default = "default_enable_context_detection")]
+    pub enable_context_detection: bool,
+}
+
+fn default_enable_context_detection() -> bool {
+    true
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -75,6 +81,7 @@ impl Default for AppSettings {
             },
             theme: "dark".to_string(),
             shortcut: "Control+Shift+Space".to_string(),
+            enable_context_detection: true,
         }
     }
 }

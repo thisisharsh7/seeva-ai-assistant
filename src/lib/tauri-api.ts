@@ -92,6 +92,7 @@ export interface AppSettings {
   ollama: ProviderSettings;
   theme: string;
   shortcut: string;
+  enableContextDetection: boolean;
 }
 
 export const settingsAPI = {
@@ -154,6 +155,13 @@ export const shortcutAPI = {
     return listen('toggle-window', () => {
       callback();
     });
+  },
+};
+
+// Context Detection API
+export const contextAPI = {
+  detect: async () => {
+    return await invoke('detect_screen_context');
   },
 };
 

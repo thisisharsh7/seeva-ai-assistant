@@ -367,6 +367,6 @@ mod tests {
         let provider = OpenAIProvider::new("test-key".to_string());
         let models = provider.available_models();
         assert!(models.contains(&"gpt-5-mini".to_string()));
-        assert!(models.len() > 0);
+        assert!(!models.is_empty());
     }
 }

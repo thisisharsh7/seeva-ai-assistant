@@ -18,7 +18,7 @@ export function ScreenshotPreview({ screenshot, isProcessing, onRemove }: Screen
   }, [screenshot, isProcessing, setCachedScreenshot]);
 
   return (
-    <div className="relative px-2 sm:px-4 pb-2">
+    <div className="relative">
       <div className="relative inline-block">
         {/* Screenshot Image - Small corner thumbnail */}
         <img

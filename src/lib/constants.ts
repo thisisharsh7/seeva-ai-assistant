@@ -13,6 +13,7 @@ export const DEFAULT_SETTINGS: Settings = {
     launchOnStartup: false,
     minimizeToTray: true,
     showNotifications: true,
+    enableContextDetection: true,
   },
   aiProviders: {
     default: 'anthropic',
