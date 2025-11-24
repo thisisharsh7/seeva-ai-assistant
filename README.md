@@ -1,84 +1,149 @@
 # Seeva
 
-AI assistant that appears anywhere, sees your screen.
+AI that appears anywhere. Sees your screen.
 
 ![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg)
 
 ![Seeva Product Demo](public/seeva-product-demo.png)
 
+---
+
 ## The Problem
 
-You need AI help. You stop what you are doing. You open a browser. You navigate to ChatGPT or Claude. You describe what you are looking at. You wait for a response. You copy the answer. You switch back to your work.
+Let me tell you what happens fifty times a day.
 
-Fifteen seconds later, you forgot what you were doing.
+You're deep in your work. You hit a problem. You need AI help.
 
-This happens 50 times a day. Your flow state is dead.
+So you stop what you're doing. You open a browser. You navigate to ChatGPT or Claude. You try to describe what you're looking at. You wait. You copy the answer. You switch back to your work.
 
-## The Solution
+Fifteen seconds later, you've forgotten what you were doing.
 
-Press one key. Seeva appears over whatever you are doing. Click "Watch Screen" and it sees your screen. Ask your question. Get your answer. Press the key again. Back to work.
+Your flow state is dead.
 
-No context switching. No describing what you are looking at. No breaking your flow.
+This happens *fifty times a day*. And every time, you're breaking your concentration. You're context switching. You're losing precious mental energy just trying to explain what's on your screen.
 
-## Why This Exists
+We thought: there has to be a better way.
 
-I built the first version one weekend because I was tired of switching to ChatGPT 50 times a day while coding. Added screen capture because explaining what I was looking at was tedious. Started using it immediately and could not go back.
+## So We Built Seeva
 
-Showed it to developer friends. They all wanted it. That is when I knew this needed to exist.
+Press one key. Seeva appears over whatever you're doing. Click "Watch Screen" and it sees exactly what you see. Ask your question. Get your answer. Press the key again. Back to work.
 
-## What It Does
+No browser tabs. No context switching. No describing what you're looking at. No breaking your flow.
 
-**Press a key, get help**
-- Works anywhere - over fullscreen apps, games, browsers, code editors
-- Sees your screen when you need it to
-- Knows which app you are in (Chrome, VS Code, whatever)
-- Organizes conversations into threads
+Three things happened when we started using it. First, we could never go back. Second, every developer friend we showed it to wanted it immediately. Third, we realized this needed to exist for everyone.
 
-**Works with the AI you want**
-- Anthropic Claude (Sonnet, Opus, Haiku)
-- OpenAI GPT (GPT-4o, GPT-4 Turbo, GPT-3.5)
-- OpenRouter (100+ models in one place)
+That's why we're here.
 
-**Your data stays yours**
-- Everything stored on your computer
-- No cloud services. No tracking. No telemetry.
-- Only talks to the AI provider you choose
+## How It Works
 
-## Installation
+**It appears anywhere**
+Works over fullscreen apps, games, browsers, code editors. It just appears. Like Spotlight or Raycast, but for AI conversations.
 
-**Download for your platform**: [Releases](https://github.com/thisisharsh7/seeva-ai-assistant/releases) (v0.2.0)
+**It sees your screen when you need it to**
+One click, and it captures what you're looking at. No more typing out descriptions. No more "here's what I'm seeing..." It already knows.
 
-**macOS**: Download `.app.tar.gz` for your chip (Apple Silicon or Intel). Right-click and select "Open" on first launch.
+**It knows your context**
+Seeva automatically detects which app you're in. Chrome, VS Code, whatever. That context helps it give you better answers.
 
-**Windows**: Download `.exe` or `.msi` installer. Requires Windows 10 or later.
+**It organizes your conversations**
+Every conversation is saved in threads. So you can come back to them. Reference them. Build on them.
 
-**Linux**: Download `.deb`, `.rpm`, or `.AppImage` depending on your distro.
+## The AI You Want
 
-Updates are automatic. When a new version is available, click "Update available" in Settings.
+We didn't lock you into one AI provider. That would be like building a computer that only runs one program.
+
+**Choose your AI:**
+- Anthropic Claude
+- OpenAI GPT 
+- OpenRouter
+
+Switch between them anytime. Use the one that's best for what you're doing right now.
+
+## Your Data Stays Yours
+
+Everything lives on your computer. Conversations. Screenshots. Settings. All stored locally in SQLite.
+
+Your data only leaves your machine when you send a message to your chosen AI provider. That's it.
+
+No cloud services. No tracking. No telemetry. No analytics.
+
+We didn't build this to collect your data. We built it to help you work better.
+
+**Where your data lives:**
+- macOS/Linux: `~/.config/ai.seeva.assistant/`
+- Windows: `%APPDATA%\ai.seeva.assistant\`
 
 ## Getting Started
 
-**1. Get an API key**
+**Step 1: Download Seeva**
+
+[Download from Releases](https://github.com/thisisharsh7/seeva-ai-assistant/releases) (v0.2.0)
+
+- **macOS**: Download `.app.tar.gz` for your chip (Apple Silicon or Intel). Right-click and "Open" on first launch.
+- **Windows**: Download `.exe` or `.msi` installer. Requires Windows 10 or later.
+- **Linux**: Download `.deb`, `.rpm`, or `.AppImage` for your distro.
+
+Updates happen automatically. When there's a new version, you'll see "Update available" in Settings.
+
+**Step 2: Get an API key**
 
 Pick one:
 - Anthropic Claude: [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys)
 - OpenAI GPT: [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
-- OpenRouter (100+ models): [openrouter.ai/keys](https://openrouter.ai/keys)
+- OpenRouter: [openrouter.ai/keys](https://openrouter.ai/keys)
 
-**2. Add it to Seeva**
+**Step 3: Add it to Seeva**
 
-Open Settings, paste your API key.
+Open Settings. Paste your API key. Done.
 
-**3. Grant screen permissions**
+**Step 4: Grant permissions**
 
-macOS will ask for Screen Recording permission. Grant it so Seeva can capture your screen and detect which app you are in.
+On macOS, you'll need to grant Screen Recording permission. This lets Seeva capture your screen and detect which app you're in. Without it, the "Watch Screen" feature won't work.
 
-**4. Use it**
+**Step 5: Use it**
 
-Press `Ctrl+Shift+Space` anywhere. Click "Watch Screen" if you want the AI to see what you are looking at. Ask your question. Get your answer.
+Press `Ctrl+Shift+Space` anywhere. Click "Watch Screen" if you want the AI to see what you're looking at. Ask your question. Get your answer.
+
+That's it.
+
+## What's Different About This Release (v0.2.0)
+
+I showed Seeva to some friends. They loved it. They wanted to use it. But macOS kept showing "unidentified developer" warnings. That's not how this should work.
+
+So we focused on getting this right:
+
+**Proper Code Signing & Notarization**
+Seeva is now fully signed and notarized for macOS. No more security warnings. It just works.
+
+**Secure Auto-Updates**
+Update packages are cryptographically signed. Your computer verifies them before installing. The way it should be.
+
+**Better Distribution**
+We've solved the distribution challenges. You can download it, open it, and start using it. No fighting with your operating system.
+
+**Context Detection**
+Seeva automatically knows which app you're in when you summon it. This helps it understand your context better.
+
+**Fullscreen Support**
+Works over fullscreen apps on macOS, Windows, and Linux. Like Raycast or Spotlight. Just appears when you need it.
+
+## Keyboard Shortcuts
+
+- `Ctrl+Shift+Space` - Show/hide Seeva (customizable)
+- `Ctrl+N` - New conversation thread
+- `Ctrl+Enter` - Send message
+- `Escape` - Hide window
+
+## A Note on Fullscreen Apps
+
+Seeva works over fullscreen applications on macOS, Windows, and Linux. Modern apps and browsers work great.
+
+Some older games using exclusive fullscreen mode might not show overlays. That's a limitation of how those games interact with the operating system, not Seeva.
 
 ## For Developers
+
+If you want to build from source or contribute:
 
 ```bash
 git clone https://github.com/thisisharsh7/seeva-ai-assistant.git
@@ -87,40 +152,19 @@ bun install
 bun run tauri dev
 ```
 
-Built with Tauri, React, TypeScript, and Rust.
+Built with Tauri, React, TypeScript, and Rust. The same technologies we use to make it fast, secure, and native-feeling on every platform.
 
-## Keyboard Shortcuts
+## Why We Built This
 
-- `Ctrl+Shift+Space` - Show/hide from anywhere (customizable)
-- `Ctrl+N` - New conversation thread
-- `Ctrl+Enter` - Send message
-- `Escape` - Hide window
+I built the first version because I was tired of switching to ChatGPT fifty times a day while coding. Tired of explaining what I was looking at. Tired of breaking my flow state.
 
-## Works Over Fullscreen Apps
+So I built something that appears when I need it, sees what I'm looking at, and gets out of my way. Started using it immediately. Could not go back.
 
-Seeva appears over fullscreen applications on macOS, Windows, and Linux. Works with browsers, code editors, and most apps.
+Showed it to developer friends. They all wanted it. That's when I knew this needed to exist.
 
-**Note**: Some older games using exclusive fullscreen mode may not show overlays. Most modern apps and browsers work fine.
+We've been refining it. Making it better. Making it something you can actually use every day. Making it something that respects your data, your privacy, your workflow.
 
-## Privacy
-
-Everything stays on your computer. Conversations, screenshots, settings - all stored locally in SQLite.
-
-Your data only leaves your machine when you send a message to your chosen AI provider (Anthropic, OpenAI, or OpenRouter).
-
-No analytics. No telemetry. No tracking.
-
-**Data location**:
-- macOS/Linux: `~/.config/ai.seeva.assistant/`
-- Windows: `%APPDATA%\ai.seeva.assistant\`
-
-## What's New (v0.2.0)
-
-- **Full Code Signing & Notarization**: Properly signed and notarized for macOS distribution
-- **Secure Auto-Updates**: Update packages are now cryptographically signed
-- **Improved Distribution**: No more "unidentified developer" warnings on macOS
-- **Context Detection**: Automatically knows which app you're in when you summon Seeva
-- **Better Fullscreen Support**: Works over fullscreen apps on macOS (like Raycast or Spotlight)
+This is Seeva. We think once you use it, you won't want to go back either.
 
 ## Questions or Issues?
 
