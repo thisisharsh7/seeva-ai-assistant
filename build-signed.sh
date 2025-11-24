@@ -8,14 +8,15 @@ set -e  # Exit on error
 echo "🔐 Setting up signing credentials..."
 
 # Apple Developer credentials for code signing and notarization
-export APPLE_SIGNING_IDENTITY="Developer ID Application: Harsh Kumar (M949N3D3HT)"
-export APPLE_ID="thisisharsh7@icloud.com"
-export APPLE_PASSWORD="ozob-idaw-ozsl-pvai"  # App-specific password
-export APPLE_TEAM_ID="M949N3D3HT"
+# These should be set as environment variables before running this script
+export APPLE_SIGNING_IDENTITY="${APPLE_SIGNING_IDENTITY:-Developer ID Application: Harsh Kumar (M949N3D3HT)}"
+export APPLE_ID="${APPLE_ID:-thisisharsh7@icloud.com}"
+export APPLE_PASSWORD="${APPLE_PASSWORD:?Error: APPLE_PASSWORD environment variable is required}"
+export APPLE_TEAM_ID="${APPLE_TEAM_ID:-M949N3D3HT}"
 
 # Tauri updater signing (for auto-updates)
 export TAURI_SIGNING_PRIVATE_KEY=$(cat ~/.tauri/seeva.key)
-export TAURI_SIGNING_PRIVATE_KEY_PASSWORD=""  # No password set
+export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="${TAURI_SIGNING_PRIVATE_KEY_PASSWORD:?Error: TAURI_SIGNING_PRIVATE_KEY_PASSWORD environment variable is required}"
 
 echo "✅ Credentials configured"
 echo ""
