@@ -47,7 +47,7 @@ Showed it to developer friends. They all wanted it. That is when I knew this nee
 
 ## Installation
 
-**Download for your platform**: [Releases](https://github.com/thisisharsh7/seeva-ai-assistant/releases) (v0.1.7)
+**Download for your platform**: [Releases](https://github.com/thisisharsh7/seeva-ai-assistant/releases) (v0.2.0)
 
 **macOS**: Download `.app.tar.gz` for your chip (Apple Silicon or Intel). Right-click and select "Open" on first launch.
 
@@ -114,11 +114,13 @@ No analytics. No telemetry. No tracking.
 - macOS/Linux: `~/.config/ai.seeva.assistant/`
 - Windows: `%APPDATA%\ai.seeva.assistant\`
 
-## What's New (v0.1.7)
+## What's New (v0.2.0)
 
+- **Full Code Signing & Notarization**: Properly signed and notarized for macOS distribution
+- **Secure Auto-Updates**: Update packages are now cryptographically signed
+- **Improved Distribution**: No more "unidentified developer" warnings on macOS
 - **Context Detection**: Automatically knows which app you're in when you summon Seeva
 - **Better Fullscreen Support**: Works over fullscreen apps on macOS (like Raycast or Spotlight)
-- **Bug Fixes**: Global shortcut now works reliably when other apps are fullscreen
 
 ## Questions or Issues?
 

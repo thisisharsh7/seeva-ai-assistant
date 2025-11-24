@@ -47,10 +47,10 @@ jobs:
       matrix:
         include:
           - platform: "macos-latest" # for Arm based macs (M1 and above).
-            args: "--target aarch64-apple-darwin --bundles app"
+            args: "--target aarch64-apple-darwin --bundles app,dmg"
             target: "aarch64-apple-darwin"
           - platform: "macos-latest" # for Intel based macs.
-            args: "--target x86_64-apple-darwin --bundles app"
+            args: "--target x86_64-apple-darwin --bundles app,dmg"
             target: "x86_64-apple-darwin"
           - platform: "ubuntu-22.04" # Build .deb on 22.04
             args: "--bundles deb"
@@ -67,7 +67,7 @@ jobs:
       platform: ${{ matrix.platform }}
       target: ${{ matrix.target }}
       build-args: ${{ matrix.args }}
-      sign-binaries: false
+      sign-binaries: true
       asset-prefix: "seeva-ai-assistant"
       upload-artifacts: false
       release-id: ${{ needs.create-release.outputs.release-id }}

@@ -2,7 +2,7 @@ import { ModelInfo, Settings } from './types';
 
 // App metadata
 export const APP_NAME = 'Seeva AI Assistant';
-export const APP_VERSION = '0.1.6';
+export const APP_VERSION = '0.2.0';
 
 // Default settings
 export const DEFAULT_SETTINGS: Settings = {
