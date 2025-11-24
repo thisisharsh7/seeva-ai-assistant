@@ -50,3 +50,4 @@ dist-ssr
 
 # Claude Code settings
 .claude/
+GITHUB_SECRETS.md
