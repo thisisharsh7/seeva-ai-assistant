@@ -70,7 +70,7 @@
       "shortcuts": []
     },
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDY5RTc1REZDRkUxMkQzQTMKUldTajB4TCsvRjNuYWFaT1AyN2lNTGxYWXpIcGJINlZzZENQUlAwM0hmdysyOWJrMHlWSGpuNFAK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEM3RkU3MzgzQjlGMjI5RDcKUldUWEtmSzVnM1AreC8vUlZIUWFhcGg2OG1FQnpBZTc2T1E0R3o3RGUyM21DK0ZUSU5qN3BrU0cK",
       "endpoints": [
         "https://github.com/thisisharsh7/seeva-ai-assistant/releases/latest/download/latest.json"
       ]
