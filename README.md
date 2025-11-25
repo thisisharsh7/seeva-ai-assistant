@@ -39,7 +39,7 @@ Everything stored on your computer in SQLite. No cloud, no tracking, no telemetr
 
 ## Quick Start
 
-1. **Download**: [Get the latest release](https://github.com/thisisharsh7/seeva-ai-assistant/releases)
+1. **Download**: [Get the latest release](https://github.com/thisisharsh7/seeva-ai-assistant/releases/tag/v0.2.0)
    - macOS: `.app.tar.gz` (Apple Silicon or Intel)
    - Windows: `.exe` or `.msi`
    - Linux: `.deb`, `.rpm`, or `.AppImage`
