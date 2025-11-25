@@ -31,10 +31,6 @@ Press one key. Seeva appears over whatever you're doing. Click "Watch Screen" an
 
 No browser tabs. No context switching. No describing what you're looking at. No breaking your flow.
 
-Three things happened when we started using it. First, we could never go back. Second, every developer friend we showed it to wanted it immediately. Third, we realized this needed to exist for everyone.
-
-That's why we're here.
-
 ## How It Works
 
 **It appears anywhere**
