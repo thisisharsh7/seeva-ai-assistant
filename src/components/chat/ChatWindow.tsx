@@ -4,7 +4,7 @@ import { ThreadSelector } from './ThreadSelector';
 import { SettingsModal } from '../settings';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { useUIStore } from '../../stores/uiStore';
-import { Settings, Minus } from 'lucide-react';
+import { Settings, Minus, GripVertical } from 'lucide-react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 
 export function ChatWindow() {
@@ -27,13 +27,23 @@ export function ChatWindow() {
           {/* Left Side - Settings & Thread Selector */}
           <div className="flex items-center gap-2 min-w-0 flex-1 mr-2">
             <button
+              data-tauri-drag-region="false"
               onClick={openSettings}
               className="p-1.5 rounded hover:bg-glass-darker transition-colors flex-shrink-0"
               title="Settings"
             >
               <Settings size={18} className="text-secondary" />
             </button>
-            <div className="min-w-0 flex-1 max-w-[200px]">
+
+            {/* Drag Handle Icon */}
+            <div
+              className="p-1.5 cursor-move flex-shrink-0 text-secondary/50 hover:text-secondary transition-colors"
+              title="Drag to move window"
+            >
+              <GripVertical size={18} />
+            </div>
+
+            <div data-tauri-drag-region="false" className="min-w-0 flex-1 max-w-[200px]">
               <ThreadSelector />
             </div>
           </div>
@@ -41,10 +51,13 @@ export function ChatWindow() {
           {/* Right Side - Window Controls */}
           <div className="flex gap-1.5 flex-shrink-0">
             {/* Theme Toggle */}
-            <ThemeToggle />
+            <div data-tauri-drag-region="false">
+              <ThemeToggle />
+            </div>
 
             {/* Minimize Button */}
             <button
+              data-tauri-drag-region="false"
               onClick={handleMinimize}
               className="p-1.5 hover:bg-glass-darker rounded transition-colors"
               title="Minimize"
