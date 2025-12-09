@@ -4,30 +4,20 @@ import { ThreadSelector } from './ThreadSelector';
 import { SettingsModal } from '../settings';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { useUIStore } from '../../stores/uiStore';
-import { Settings, Minus, GripVertical } from 'lucide-react';
-import { getCurrentWindow } from '@tauri-apps/api/window';
+import { Settings, GripVertical } from 'lucide-react';
 
 export function ChatWindow() {
   const { openSettings } = useUIStore();
-
-  const handleMinimize = async () => {
-    const appWindow = getCurrentWindow();
-    await appWindow.minimize();
-  };
 
   return (
     <div className="w-full h-screen flex overflow-hidden relative">
       {/* Main Chat Area - Full width, no sidebar */}
       <div className="flex-1 flex flex-col glass-window min-w-[360px]">
         {/* Header Bar */}
-        <div
-          data-tauri-drag-region
-          className="flex items-center justify-between px-3 py-1.5 border-b border-border-subtle cursor-move"
-        >
+        <div className="flex items-center justify-between px-3 py-1.5 border-b border-border-subtle">
           {/* Left Side - Settings & Thread Selector */}
           <div className="flex items-center gap-2 min-w-0 flex-1 mr-2">
             <button
-              data-tauri-drag-region="false"
               onClick={openSettings}
               className="p-1.5 rounded hover:bg-glass-darker transition-colors flex-shrink-0"
               title="Settings"
@@ -35,15 +25,7 @@ export function ChatWindow() {
               <Settings size={18} className="text-secondary" />
             </button>
 
-            {/* Drag Handle Icon */}
-            <div
-              className="p-1.5 cursor-move flex-shrink-0 text-secondary/50 hover:text-secondary transition-colors"
-              title="Drag to move window"
-            >
-              <GripVertical size={18} />
-            </div>
-
-            <div data-tauri-drag-region="false" className="min-w-0 flex-1 max-w-[200px]">
+            <div className="min-w-0 flex-1 max-w-[200px]">
               <ThreadSelector />
             </div>
           </div>
@@ -51,19 +33,20 @@ export function ChatWindow() {
           {/* Right Side - Window Controls */}
           <div className="flex gap-1.5 flex-shrink-0">
             {/* Theme Toggle */}
-            <div data-tauri-drag-region="false">
+            <div>
               <ThemeToggle />
             </div>
 
-            {/* Minimize Button */}
-            <button
-              data-tauri-drag-region="false"
-              onClick={handleMinimize}
+             {/* Drag Handle */}
+            <div
+              data-tauri-drag-region
+              style={{ cursor: 'move' }}
               className="p-1.5 hover:bg-glass-darker rounded transition-colors"
-              title="Minimize"
+              title="Drag to move window"
             >
-              <Minus size={18} className="text-secondary" />
-            </button>
+              <GripVertical size={18} style={{ pointerEvents: 'none' }} className="text-secondary" />
+            </div>
+
           </div>
         </div>
 

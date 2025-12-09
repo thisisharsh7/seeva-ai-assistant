@@ -62,11 +62,12 @@ pub fn run() {
 
                                 println!("✅ Successfully converted window to NSPanel");
 
-                                // CRITICAL: Set NonactivatingPanel style mask
+                                // CRITICAL: Set NonactivatingPanel style mask with Resizable
                                 // This allows the panel to show over fullscreen apps without activating our app
+                                // and enables resize handles at the window edges
                                 use tauri_nspanel::panel::NSWindowStyleMask;
-                                panel.set_style_mask(NSWindowStyleMask::NonactivatingPanel);
-                                println!("✅ Panel style mask set to NonactivatingPanel");
+                                panel.set_style_mask(NSWindowStyleMask::NonactivatingPanel | NSWindowStyleMask::Resizable);
+                                println!("✅ Panel style mask set to NonactivatingPanel with Resizable");
 
                                 // Configure panel to appear on all spaces and above fullscreen apps
                                 // Window levels: Normal=0, Floating=3, Main menu=24, Status=25

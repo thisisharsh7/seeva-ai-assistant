@@ -5,6 +5,27 @@ All notable changes to Seeva AI Assistant will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2025-12-09
+
+### Added
+- Window resizability from edges with `NSWindowStyleMask::Resizable` flag
+- Users can now resize the window by dragging any edge, not just corners
+- Resize handles work on all window edges while maintaining NonactivatingPanel behavior
+
+### Changed
+- **UI Reorganization**: Moved drag handle from left side to right side with window controls
+- Improved visual hierarchy with drag handle positioned alongside theme toggle and minimize button
+- Better discoverability of window controls and drag functionality
+- Cleaner header layout with more intuitive button grouping
+
+### Removed
+- Removed `skipTaskbar: false` configuration for cleaner setup
+- Cleaned up redundant drag region attributes from header components
+
+### Fixed
+- Window controls now properly grouped for better UX
+- Drag handle more visible and accessible in new position
+
 ## [0.1.7] - 2025-11-15
 
 ### Added
