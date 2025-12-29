@@ -8,7 +8,7 @@ import { Eye, EyeOff, ExternalLink, Loader2 } from 'lucide-react';
 import type { AppSettings, ProviderSettings } from '../../lib/tauri-api';
 import { settingsAPI } from '../../lib/tauri-api';
 import { openUrl } from '@tauri-apps/plugin-opener';
-import { APP_VERSION } from '../../lib/constants';
+import { getAppVersion } from '../../lib/constants';
 
 const PROVIDER_MODELS = {
   anthropic: [
@@ -72,6 +72,7 @@ export function SettingsModal() {
   const toast = useToast();
 
   const [localSettings, setLocalSettings] = useState<AppSettings | null>(null);
+  const [appVersion, setAppVersion] = useState<string>('...');
   const [showApiKeys, setShowApiKeys] = useState<Record<ProviderKey, boolean>>({
     anthropic: false,
     openai: false,
@@ -92,6 +93,11 @@ export function SettingsModal() {
       setSelectedProvider((storeSettings.defaultProvider as ProviderKey) || 'anthropic');
     }
   }, [isSettingsOpen]);
+
+  // Fetch app version dynamically on mount
+  useEffect(() => {
+    getAppVersion().then(setAppVersion);
+  }, []);
 
   // Auto-save helper
   const autoSave = async (updates: Partial<AppSettings>) => {
@@ -397,7 +403,7 @@ export function SettingsModal() {
 
         {/* Footer with Update Checker and Version */}
         <div className="pt-4 border-t border-border-subtle flex items-center justify-between">
-          <span className="text-xs text-tertiary">v{APP_VERSION}</span>
+          <span className="text-xs text-tertiary">v{appVersion}</span>
           <UpdateChecker />
         </div>
       </div>

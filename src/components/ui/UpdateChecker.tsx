@@ -108,10 +108,12 @@ export function UpdateChecker({ className = '' }: UpdateCheckerProps) {
       await relaunch();
     } catch (error) {
       console.error('Failed to install update:', error);
-      setError('Failed to install update');
+      // Show more detailed error message to help users troubleshoot
+      const errorMessage = error instanceof Error ? error.message : 'Failed to install update';
+      setError(`Update failed: ${errorMessage}`);
       setTimeout(() => {
         setError(null);
-      }, 5000);
+      }, 8000);  // Increased timeout so users can read the error
     } finally {
       setIsInstalling(false);
       setDownloadProgress(0);

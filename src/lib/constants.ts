@@ -1,8 +1,18 @@
 import { ModelInfo, Settings } from './types';
+import { getVersion } from '@tauri-apps/api/app';
 
 // App metadata
 export const APP_NAME = 'Seeva AI Assistant';
-export const APP_VERSION = '0.2.0';
+
+// Dynamic version getter - always synced with tauri.conf.json
+export const getAppVersion = async (): Promise<string> => {
+  try {
+    return await getVersion();
+  } catch (error) {
+    console.error('Failed to get app version:', error);
+    return '0.0.0'; // Fallback version
+  }
+};
 
 // Default settings
 export const DEFAULT_SETTINGS: Settings = {
