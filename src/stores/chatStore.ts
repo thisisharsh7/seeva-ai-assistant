@@ -94,6 +94,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   createThread: async (name) => {
     const { useToastStore } = await import('../hooks/useToast');
+    const { useUIStore } = await import('./uiStore');
     try {
       const newThread = await threadAPI.create(name);
       set((state) => ({
@@ -101,6 +102,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
         currentThreadId: newThread.id,
         messages: [], // Clear messages for new thread
       }));
+
+      // Clear screenshot and context when creating new thread
+      const uiStore = useUIStore.getState();
+      uiStore.clearScreenshot();
+      uiStore.clearScreenContext();
 
       useToastStore.getState().addToast({
         type: 'success',

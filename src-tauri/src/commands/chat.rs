@@ -63,7 +63,7 @@ pub async fn send_message(
     };
 
     // Build system prompt
-    let system_prompt = "You are a helpful AI assistant.".to_string();
+    let system_prompt = "You are Seeva AI Assistant, a helpful AI assistant. You are part of the Seeva AI Assistant application and should identify yourself as Seeva, not by the underlying AI model name. Provide helpful, accurate, and friendly assistance to users.".to_string();
 
     // Create chat request
     let chat_request = ChatRequest {
