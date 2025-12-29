@@ -3,34 +3,35 @@
  * Detects user's OS and provides appropriate download links
  */
 
-const SEEVA_VERSION = 'v0.2.0';
+const VERSION = '0.2.2'; // Update this for each release
+const SEEVA_VERSION = `v${VERSION}`;
 const RELEASE_BASE = `https://github.com/thisisharsh7/seeva-ai-assistant/releases/download/${SEEVA_VERSION}`;
 
 const DOWNLOADS = {
     mac: {
         primary: {
-            url: `${RELEASE_BASE}/Seeva.AI.Assistant_0.2.0_aarch64.dmg`,
+            url: `${RELEASE_BASE}/Seeva.AI.Assistant_${VERSION}_aarch64.dmg`,
             text: 'Download for macOS',
             note: 'Apple Silicon',
-            altUrl: `${RELEASE_BASE}/Seeva.AI.Assistant_0.2.0_x64.dmg`,
+            altUrl: `${RELEASE_BASE}/Seeva.AI.Assistant_${VERSION}_x64.dmg`,
             altText: 'Intel Mac'
         }
     },
     windows: {
         primary: {
-            url: `${RELEASE_BASE}/Seeva.AI.Assistant_0.2.0_x64-setup.exe`,
+            url: `${RELEASE_BASE}/Seeva.AI.Assistant_${VERSION}_x64-setup.exe`,
             text: 'Download for Windows',
             note: 'Windows 10+',
-            altUrl: `${RELEASE_BASE}/Seeva.AI.Assistant_0.2.0_x64_en-US.msi`,
+            altUrl: `${RELEASE_BASE}/Seeva.AI.Assistant_${VERSION}_x64_en-US.msi`,
             altText: 'MSI Installer'
         }
     },
     linux: {
         primary: {
-            url: `${RELEASE_BASE}/Seeva.AI.Assistant_0.2.0_amd64.deb`,
+            url: `${RELEASE_BASE}/Seeva.AI.Assistant_${VERSION}_amd64.deb`,
             text: 'Download for Linux',
             note: 'Debian/Ubuntu',
-            altUrl: `${RELEASE_BASE}/Seeva.AI.Assistant-0.2.0-1.x86_64.rpm`,
+            altUrl: `${RELEASE_BASE}/Seeva.AI.Assistant-${VERSION}-1.x86_64.rpm`,
             altText: 'RPM Package'
         }
     }
