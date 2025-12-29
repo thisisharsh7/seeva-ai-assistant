@@ -24,10 +24,6 @@
     <key>com.apple.security.files.user-selected.read-write</key>
     <true/>
 
-    <!-- App Sandbox (Required for transparency effects) -->
-    <key>com.apple.security.app-sandbox</key>
-    <true/>
-
     <!-- Accessibility (for context detection) -->
     <key>com.apple.security.automation.apple-events</key>
     <true/>

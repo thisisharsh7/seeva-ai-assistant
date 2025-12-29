@@ -105,7 +105,20 @@ export function UpdateChecker({ className = '' }: UpdateCheckerProps) {
             break;
         }
       });
-      await relaunch();
+
+      // Update installed successfully, now try to restart
+      console.log('Update installed successfully, attempting to restart...');
+
+      try {
+        await relaunch();
+      } catch (relaunchError) {
+        // If auto-restart fails, show message to user
+        console.error('Auto-restart failed:', relaunchError);
+        setError('Update installed! Please restart the app to complete.');
+        setTimeout(() => {
+          setError(null);
+        }, 15000); // Show for 15 seconds
+      }
     } catch (error) {
       console.error('Failed to install update:', error);
       // Show more detailed error message to help users troubleshoot
