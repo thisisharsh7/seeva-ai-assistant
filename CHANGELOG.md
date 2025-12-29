@@ -5,6 +5,20 @@ All notable changes to Seeva AI Assistant will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2025-12-29
+
+### Fixed
+- **Version Display Bug**: Fixed issue where settings showed v0.2.0 instead of actual installed version
+  - Replaced hardcoded `APP_VERSION` constant with dynamic `getAppVersion()` function
+  - Version now automatically syncs with `tauri.conf.json` and always displays correctly
+  - Eliminates need to manually update version in multiple places during releases
+
+### Improved
+- **Update Error Messages**: Enhanced auto-updater error reporting
+  - Now shows detailed error messages instead of generic "Failed to install update"
+  - Increased error display timeout from 5s to 8s for better readability
+  - Helps users troubleshoot update issues more effectively
+
 ## [0.2.1] - 2025-12-09
 
 ### Added
