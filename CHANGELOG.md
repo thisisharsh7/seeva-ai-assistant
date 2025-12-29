@@ -13,11 +13,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Version now automatically syncs with `tauri.conf.json` and always displays correctly
   - Eliminates need to manually update version in multiple places during releases
 
+- **Screenshot/Context Persistence Bug**: Fixed issue where screenshot and context persisted after clicking "New Chat"
+  - Now properly clears screenshot and screen context when creating new thread
+  - Prevents data from appearing in messages after starting new conversation
+
+- **Auto-Updater Not Installing**: Fixed critical issue where updates downloaded but failed to install
+  - Removed `app-sandbox` entitlement that prevented updater from replacing app in `/Applications`
+  - Updates now install successfully and restart automatically
+  - Note: macOS sandboxed apps cannot replace themselves - sandbox only needed for Mac App Store
+
 ### Improved
 - **Update Error Messages**: Enhanced auto-updater error reporting
   - Now shows detailed error messages instead of generic "Failed to install update"
   - Increased error display timeout from 5s to 8s for better readability
+  - Shows "Update installed! Please restart" message if auto-restart fails
   - Helps users troubleshoot update issues more effectively
+
+- **AI Identity**: Updated system prompt across all AI providers
+  - AI now identifies as "Seeva AI Assistant" instead of underlying model name
+  - Prevents responses like "I am Claude" or "I am ChatGPT"
+  - Works consistently across Anthropic, OpenAI, OpenRouter, Gemini, and Ollama
+
+- **App Icon Design**: Improved icon appearance following macOS Big Sur guidelines
+  - Added 22% rounded corners (superellipse shape) for proper macOS styling
+  - Added 15% internal padding so logo doesn't touch edges
+  - Icon now properly sized with margins for better visual appearance
 
 ## [0.2.1] - 2025-12-09
 
