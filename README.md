@@ -1,6 +1,7 @@
 # Seeva
 
 AI overlay that works like Spotlight. Press a key, ask AI, get back to work.
+[demo video](https://youtu.be/390fg5MAGgs?si=yIKvKrvtW-gQx4xI)
 
 ![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg)
