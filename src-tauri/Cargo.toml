@@ -3,6 +3,7 @@ name = "tauri-app"
 version = "0.2.2"
 description = "A Tauri App"
 authors = ["you"]
+license = "MIT"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

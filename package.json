@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.2.2",
   "description": "Cross-platform AI assistant with screenshot capabilities",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -84,7 +84,7 @@ Discord: `thisisharsh7`
 
 ## License
 
-TBD
+[MIT License](LICENSE)
 
 Created by [Harsh Kumar](https://github.com/thisisharsh7)
 
@@ -92,4 +92,3 @@ Seeva is an AI overlay that works on any app or website. Open-source and free to
 
 ⭐ **Star** this repo if you find it useful  
 💖 **Sponsor me** → [GitHub Sponsors](https://github.com/sponsors/thisisharsh7)
-
